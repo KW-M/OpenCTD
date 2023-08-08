@@ -1,0 +1,9 @@
+Manufacturer=ams
+PartNumber=TSL25911FN
+PartCategory=Integrated Circuit
+PackageCategory=Other
+PinCount=6
+Version=1.2
+Released=2018-08-07 09:29:54
+Downloaded=2023-04-21 23:06:34
+3D=Y

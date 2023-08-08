@@ -1,0 +1,4 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "TSL25911FN")(type "KiCad")(uri "${KIPRJMOD}/components/TSL25911FN/KiCad/TSL25911FN.kicad_sym")(options "")(descr ""))
+)

@@ -1,0 +1,9 @@
+(fp_lib_table
+  (version 7)
+  (lib (name "Feather M0")(type "KiCad")(uri "${KIPRJMOD}/components/2795 Feather 32u4 Adalogger")(options "")(descr ""))
+  (lib (name "Molex Male 22-05-3081 Connector")(type "KiCad")(uri "${KIPRJMOD}/components/Molex Male 22-05-3081 Connector")(options "")(descr ""))
+  (lib (name "EZO_EC_Chip")(type "KiCad")(uri "${KIPRJMOD}/components/EZO_EC_Chip")(options "")(descr ""))
+  (lib (name "Adafruit RTC Breakout - 3013")(type "KiCad")(uri "${KIPRJMOD}/components/Adafruit RTC Breakout - 3013")(options "")(descr ""))
+  (lib (name "Generic_Stuff")(type "KiCad")(uri "${KIPRJMOD}/components/Generic_Stuff")(options "")(descr ""))
+  (lib (name "TSL25911FN_LightSensor")(type "KiCad")(uri "${KIPRJMOD}/components/TSL25911FN/KiCad")(options "")(descr ""))
+)
