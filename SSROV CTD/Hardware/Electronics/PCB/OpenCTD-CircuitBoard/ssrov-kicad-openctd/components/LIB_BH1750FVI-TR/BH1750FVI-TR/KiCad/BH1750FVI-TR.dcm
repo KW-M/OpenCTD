@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP BH1750FVI-TR
+D Ambient Light Sensor,16bit,I2C,WSOF6I ROHM BH1750FVI-TR Ambient Light Sensor Unit Surface Mount
+K
+F https://componentsearchengine.com/Datasheets/2/BH1750FVI-TR.pdf
+$ENDCMP
+#
+#End Doc Library

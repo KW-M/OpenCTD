@@ -1,0 +1,200 @@
+(footprint "Littelfuse Reed Switch 59050-3-S"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "REF**"
+		(at 0 -0.5 90)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "21ccbf88-869a-4921-9b78-5ec1e3db4b42")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "Littelfuse Reed Switch 59050-3-S"
+		(at -3.048 0 90)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "c415cb2a-b21b-41aa-b843-c4c1dd1adbf1")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f646f034-7f73-43a8-98ba-41cdddd204e6")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f57abb34-644e-4c8e-a7f7-1e0f37d47ac8")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(property "Description" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "8ac472b2-6a9c-46f7-96aa-ed5f747a46a6")
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+		)
+	)
+	(attr through_hole exclude_from_pos_files exclude_from_bom)
+	(fp_line
+		(start -2.16 9.27)
+		(end -2.16 -9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "43ea6c71-13a6-44d5-b3cf-b3514288c0f3")
+	)
+	(fp_line
+		(start 2.16 9.27)
+		(end 2.16 -9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "41a37bdf-1ec7-410c-a563-379f8d8c502c")
+	)
+	(fp_arc
+		(start -2.16 -9.27)
+		(mid 0 -11.43)
+		(end 2.16 -9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "a60d63f9-1495-47b6-a89c-b81e7b0ec64a")
+	)
+	(fp_arc
+		(start 2.16 9.27)
+		(mid 0 11.43)
+		(end -2.16 9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "92cc2fe6-52ea-497a-a299-307d6f556727")
+	)
+	(fp_circle
+		(center 0 -10.16)
+		(end 0.254 -10.16)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "c9dd8f58-d33b-4b38-8a7e-e2322fe97bb8")
+	)
+	(fp_circle
+		(center 0 -7.62)
+		(end 0.254 -7.62)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "f9cccb49-89ad-476e-ade8-0eb274d421b9")
+	)
+	(fp_circle
+		(center 0 10.16)
+		(end 0.254 10.16)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "b97acaf7-19b8-464a-b8ce-44aef91cefdc")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 3.302 0 90)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "41d26c3f-ca36-4eab-ab36-95b680333aec")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "1" thru_hole circle
+		(at 0 -7.62)
+		(size 1.4 1.4)
+		(drill 0.762)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(clearance 0.1)
+		(uuid "bd629c4e-d7eb-4f04-8574-10d3bfe3690b")
+	)
+	(pad "2" thru_hole circle
+		(at 0 10.16)
+		(size 1.4 1.4)
+		(drill 0.762)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(clearance 0.1)
+		(uuid "69309f15-29fa-4691-9d84-0527c9859ff5")
+	)
+	(pad "3" thru_hole circle
+		(at 0 -10.16)
+		(size 1.4 1.4)
+		(drill 0.762)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(clearance 0.1)
+		(uuid "adf8d18c-c068-4039-b211-b1ee7bbacacc")
+	)
+	(group ""
+		(uuid "e042b398-1623-4537-9474-383a8a43677b")
+		(members "41a37bdf-1ec7-410c-a563-379f8d8c502c" "43ea6c71-13a6-44d5-b3cf-b3514288c0f3"
+			"92cc2fe6-52ea-497a-a299-307d6f556727" "a60d63f9-1495-47b6-a89c-b81e7b0ec64a"
+			"b97acaf7-19b8-464a-b8ce-44aef91cefdc" "c9dd8f58-d33b-4b38-8a7e-e2322fe97bb8"
+			"f9cccb49-89ad-476e-ade8-0eb274d421b9"
+		)
+	)
+	(model "${KIPRJMOD}/components/Littelfuse.pretty/Littelfuse Reed Switch 59050-3-S.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 -90)
+		)
+	)
+)

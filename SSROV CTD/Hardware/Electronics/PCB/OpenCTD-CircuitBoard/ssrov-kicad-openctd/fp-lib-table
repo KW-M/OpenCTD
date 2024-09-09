@@ -6,4 +6,7 @@
   (lib (name "Adafruit RTC Breakout - 3013")(type "KiCad")(uri "${KIPRJMOD}/components/Adafruit RTC Breakout - 3013")(options "")(descr ""))
   (lib (name "Generic_Stuff")(type "KiCad")(uri "${KIPRJMOD}/components/Generic_Stuff")(options "")(descr ""))
   (lib (name "TSL25911FN_LightSensor")(type "KiCad")(uri "${KIPRJMOD}/components/TSL25911FN/KiCad")(options "")(descr ""))
+  (lib (name "Littelfuse")(type "KiCad")(uri "${KIPRJMOD}/components/Littelfuse.pretty")(options "")(descr ""))
+  (lib (name "LIB_BH1750FVI")(type "KiCad")(uri "${KIPRJMOD}/components/LIB_BH1750FVI-TR/BH1750FVI-TR/KiCad")(options "")(descr ""))
+  (lib (name "CTD Component Footprints")(type "KiCad")(uri "${KIPRJMOD}/components/")(options "")(descr ""))
 )

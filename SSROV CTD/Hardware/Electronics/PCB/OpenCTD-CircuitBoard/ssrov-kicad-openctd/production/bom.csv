@@ -1,0 +1,18 @@
+﻿Designator,Footprint,Quantity,Value,LCSC Part #
+"C1, C3",0402,2,0.1uF,C1525
+C2,0402,1,10uF,C15525
+C4,0402,1,1uf,C52923
+"D1, D3",D_SOD-123,2,1N4148W,C81598
+D2,0603,1,WHITE LED,C2290
+D6-R4,0402,1,4.7k,C25900
+"EC_Conn_A1, EC_Conn_B5",PinSocket_1x03_P2.54mm_Vertical_JLCPCB,2,Conn_01x03_Female,C2758343
+IC1,WSOF6,1,BH1750FVI-TR,C78960
+"LED-R3, R1, R2",0402,3,470Ω,C25117
+PWR-R1,0402,1,56k,C25796
+"PWR-R2, PWR-R3, PWR-R5",0402,3,200k,C25764
+"Reed_Switch_Conn1, Reed_Switch_Conn2",PinSocket_1x03_P2.54mm_Vertical_JLCPCB,2,Conn_01x03_Female_5mm_plastic_height,C2758343
+"SCL-R5, SDA-R6",0402,2,10k,C25744
+U4,SOIC-8_3.9x4.9mm_P1.27mm_JLCPCB,1,DS3231MZ,C107410
+backup_pwr_button1,SW_SPST_XKB5858-W-F-75,1,SW_Push_XKB5858-W-F-75,C780037
+"mouse-bite-2mm-slot_4, mouse-bite-2mm-slot_3, mouse-bite-2mm-slot_2, mouse-bite-2mm-slot",mouse-bite-2mm-slot,4,VAL**,
+"nMOS1, nMOS2",SOT-23,2,2N7002,C8545
