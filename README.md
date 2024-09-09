@@ -2,12 +2,12 @@
 
 # OpenCTD SSROV / Education Edition!
 
-This fork contains a modified version of the [OpenCTD](https://github.com/OceanographyforEveryone/OpenCTD) designed to be more reliable, easy to use, and useful as a hands-on classroom teaching tool - Developed with the [SSROV Summer Camp](https://ssrovcamp.org/)
+This fork contains a modified version of the [OpenCTD](https://github.com/OceanographyforEveryone/OpenCTD) designed to be more reliable, easy to use, and useful as a hands-on classroom teaching tool - Developed for the [SSROV Summer Camp](https://ssrovcamp.org/) - Funding provided by the camp and the National Science Foundation
 
 **Improvements**
 
 - Much more reliable magnetic switch - hold to power on/off - works while fully sealed!
-- Data download, calibration & configuration over USB - removes the need to take anything out of the tube, use special software, or change firmware durring use.
+- Data download, calibration & configuration over USB - removes the need to take anything out of the tube or change firmware for use & calibration.
 - Supports realtime plotting of sensors via the Arduino serial plotter.
 - Configurable sample rate for fast response or extended battery life.
 - Bright status LEDs that work in sunlight
@@ -15,6 +15,16 @@ This fork contains a modified version of the [OpenCTD](https://github.com/Oceano
 - Built in slots for ambient lux and 9-axis orientation sensors.
 - Connectors make major conmponents, mainboard and tube easily replaceable.
 - Factory assembly PCB design - less soldering required and better components for very resonable prices via JLCPCB (30$ + shipping for 5 assembled boards).
+
+**There are many other great open source CTDs used for different applications**
+
+CTDizzle: https://github.com/IanTBlack/CTDizzle
+
+Arduino-based Sonde: https://github.com/glockridge/DrifterApplication
+
+OpenCTD: https://github.com/OceanographyforEveryone/OpenCTD
+
+PiCTD: https://github.com/haanhouse/pictd
 
 ## Make your own
 
@@ -24,6 +34,7 @@ All things related to the SSROV OpenCTD are found in the [SSROV CTD](./SSROV%20C
 
 - [Source code](./SSROV%20CTD/Software/Firmware/ssrov_ctd_code) in Arduino c++ and [pre-compiled binaries](./SSROV%20CTD/Software/Firmware/ssrov_ctd_code/build) for the Adafruit Feather Adalogger - M0 microcontroller.
 - [PCB designs](./SSROV%20CTD/Hardware/Electronics/PCB/OpenCTD-CircuitBoard/ssrov-kicad-openctd) in KiCad and exported [pcb trace & assembly files](./SSROV%20CTD/Hardware/Electronics/PCB/OpenCTD-CircuitBoard/ssrov-kicad-openctd/production/) for ordering assembled circuit boards from JLCPCB.
+- [3D Printer files](./SSROV%20CTD/Hardware/3DPrints) and [CAD Designs](https://cad.onshape.com/documents/1210ba157fe929ee8ac86200/w/c68b7dc340291ef5042e473d/e/f126e805a19383355f9e1651) for Onshape.
 
 Submit a github issue and let us know if you want make one or modify for your usecase! - We are happy to help!
 
