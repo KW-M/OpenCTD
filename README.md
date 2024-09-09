@@ -1,29 +1,53 @@
-Build your own research-quality oceanographic instrument for a fraction of the cost of commercial alternatives. 
+![SSROV CTD Header Photo](./ssrov-ctd-main-photo.png)
 
-Let's explore the ocean, together. 
+# OpenCTD SSROV / Education Edition!
 
-**Updated 8/27/2024**
+This fork contains a modified version of the [OpenCTD](https://github.com/OceanographyforEveryone/OpenCTD) designed to be more reliable, easy to use, and useful as a hands-on classroom teaching tool - Developed with the [SSROV Summer Camp](https://ssrovcamp.org/)
 
-### Development Notes: 
+**Improvements**
+
+- Much more reliable magnetic switch - hold to power on/off - works while fully sealed!
+- Data download, calibration & configuration over USB - removes the need to take anything out of the tube, use special software, or change firmware durring use.
+- Supports realtime plotting of sensors via the Arduino serial plotter.
+- Configurable sample rate for fast response or extended battery life.
+- Bright status LEDs that work in sunlight
+- Includes proto space for extending with your own sensors or components.
+- Built in slots for ambient lux and 9-axis orientation sensors.
+- Connectors make major conmponents, mainboard and tube easily replaceable.
+- Factory assembly PCB design - less soldering required and better components for very resonable prices via JLCPCB (30$ + shipping for 5 assembled boards).
+
+## Make your own
+
+> Build and ordering guides comming soon
+
+All things related to the SSROV OpenCTD are found in the [SSROV CTD](./SSROV%20CTD/) folder including:
+
+- [Source code](./SSROV%20CTD/Software/Firmware/ssrov_ctd_code) in Arduino c++ and [pre-compiled binaries](./SSROV%20CTD/Software/Firmware/ssrov_ctd_code/build) for the Adafruit Feather Adalogger - M0 microcontroller.
+- [PCB designs](./SSROV%20CTD/Hardware/Electronics/PCB/OpenCTD-CircuitBoard/ssrov-kicad-openctd) in KiCad and exported [pcb trace & assembly files](./SSROV%20CTD/Hardware/Electronics/PCB/OpenCTD-CircuitBoard/ssrov-kicad-openctd/production/) for ordering assembled circuit boards from JLCPCB.
+
+Submit a github issue and let us know if you want make one or modify for your usecase! - We are happy to help!
+
+### Development Notes:
+
 > Please be advised that the rubber o-rings in the yellow Cherne brand endcaps is much stiffer than the rubber used in other endcap brands and has been found to fail consistently in cold water. We do not recommend using Cherne endcaps in your CTD build.
 >
-> A new version of the control board is in production. If you have a Rev 6 control board, we have released [Power Management Upgrade for OpenCTD rev 6](https://github.com/OceanographyforEveryone/OpenCTD/blob/main/Documentation/Manual/OpenCTD_PowerManagementUpgrade_rev6.pdf), a guide to fixing the annoying "must be on to charge" feature of the OpenCTD rev 6 control board. You can download the Gerbers for the new board [here](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Hardware/Electronics/PCB/rev7c).
-> 
 > Some batteries ordered from Amazon have the positive and negative termninal reversed. Please check battery polarity before attempting to power your CTD.
->
-> We are actively developing CircuitPython code to port the current M0 firmware to the new RP2040 Adaloggers. We anticipate that this will be done in early 2025. 
 
 # OpenCTD: Oceanography for Everyone
+
+**BELOW IS THE README FROM THE ORIGNAL OPENCTD PROJECT**
+
+- Directions here do not nessisarily apply to ssrov CTD.
 
 The [OpenCTD Construction and
 Operation](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Documentation/Manual)
 manual provides a comprehensive, step-by-step guide to building your own
 OpenCTD, with a standard construction pathway as well as numerous alternatives
-depending on parts availability and technical skills. 
+depending on parts availability and technical skills.
 
 The OpenCTD [core software](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Software) is designed
 to be used with an M0-style Arduino microcontroller, for which we recommend the
-[Adafruit Adalogger Feather M0](https://www.adafruit.com/product/2796). 
+[Adafruit Adalogger Feather M0](https://www.adafruit.com/product/2796).
 
 ---
 
@@ -44,7 +68,7 @@ decide what is and is not worthy of study. A community leader who has the tools
 to create their own data does not have to wait for institutions to take notice
 of an emerging crisis before taking action.
 
-![The OpenCTD](Documentation/Images/IMG_20190727_150858%20(2).jpg)
+![The OpenCTD](<Documentation/Images/IMG_20190727_150858%20(2).jpg>)
 
 **You don’t need to ask for permission to understand your world.**
 
@@ -77,7 +101,7 @@ and small island states. Even in high-income countries, formal researchers at
 teaching institutions or at early career stages may also find themselves priced
 out of ocean research. Informal researchers such as citizen oceanographers,
 educators, conservation and management practitioners and students of all levels
-face severe challenges accessing expensive scientific instruments. 
+face severe challenges accessing expensive scientific instruments.
 
 ### Build Your Own CTD
 
@@ -90,8 +114,8 @@ and conservation practitioners from around the world. It is assembled from
 components commonly available at large hardware stores or through major online
 retailers. An Arduino-based microcontroller controls an array of sensors sealed
 within a PVC pipe. Power is provided by a standard 3.7V lithium polymer battery
-and data are stored in a tab-delimited text file accessed via SD card.  All
-OpenCTD software is released open source with no restrictions on use. 
+and data are stored in a tab-delimited text file accessed via SD card. All
+OpenCTD software is released open source with no restrictions on use.
 
 The OpenCTD is designed to be built by the end-user, providing both access to
 the tools of oceanography as well as the skills to maintain, repair, and
@@ -101,7 +125,7 @@ project failures. For educators seeking novel, in-depth, hands-on STEM
 experience for advanced students, the process of building an OpenCTD offers an
 introduction to coding, 3D-printing, hardware prototyping, and electronics.
 Construction of an OpenCTD can provide a practical foundation for courses in
-oceanography and marine or environmental science. 
+oceanography and marine or environmental science.
 
 ### Core Resources
 
@@ -109,16 +133,16 @@ The [OpenCTD Construction and
 Operation](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Documentation/Manual)
 manual provides a comprehensive, step-by-step guide to building your own
 OpenCTD, with a standard construction pathway as well as numerous alternatives
-depending on parts availability and technical skills. A shorter manual covering just the calibration process is also available. 
+depending on parts availability and technical skills. A shorter manual covering just the calibration process is also available.
 
 The OpenCTD [core software](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Software) is designed
 to be used with an M0-style Arduino microcontroller, for which we recommend the
-[Adafruit Adalogger Feather M0](https://www.adafruit.com/product/2796). 
+[Adafruit Adalogger Feather M0](https://www.adafruit.com/product/2796).
 
 You can find all the Arduino libraries as described in the manual, as well as
 software for calibrating the conductivity sensors in
 [Support](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Software/Support).
 
-Hardware file for both 3D printable components and the control unit PBC can be found in [Hardware](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Hardware) 
+Hardware file for both 3D printable components and the control unit PBC can be found in [Hardware](https://github.com/OceanographyforEveryone/OpenCTD/tree/main/Hardware)
 
 **Updated 8/27/2024**
