@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP TSL25911FN
+D Sensitivity Ambient Light Sensor DFN6
+K
+F http://ams.com/documents/20143/36005/TSL2591_DS000338_6-00.pdf
+$ENDCMP
+#
+#End Doc Library

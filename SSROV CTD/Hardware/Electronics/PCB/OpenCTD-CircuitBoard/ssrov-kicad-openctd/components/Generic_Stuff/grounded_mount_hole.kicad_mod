@@ -1,0 +1,13 @@
+(footprint "grounded_mount_hole" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (attr through_hole board_only exclude_from_bom)
+  (fp_text reference "top_hole1" (at 0 0) (layer "F.SilkS") hide
+      (effects (font (size 1.27 1.27) (thickness 0.15)))
+    (tstamp cdcdc780-cc9e-4233-a51d-50a2e022395d)
+  )
+  (fp_text value "" (at 0 0) (layer "F.SilkS")
+      (effects (font (size 1.27 1.27) (thickness 0.15)))
+    (tstamp 1264638b-34a6-44ea-ad94-56768887f389)
+  )
+  (pad "SH2" thru_hole circle (at 0 0 270) (size 3.2 3.2) (drill 2.5) (layers "*.Cu" "*.Mask") (tstamp 39fd6e80-4870-417d-9089-e7d1c5f0c0b9))
+)
