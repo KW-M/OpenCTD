@@ -1,4 +1,7 @@
 #include "clock.hpp"
+#include "utility_functions.hpp"
+#include "power_control.hpp"
+#include "indicator_light.hpp"
 
 // -----------------------------------
 // ------- Global Variables ----------
@@ -16,13 +19,12 @@ RTC_PCF8523 rtc; // Make an instance variable of the class to talk to the real t
 
 bool clock_setup_rtc()
 {
-  while (not rtc.begin())
+  if (not rtc.begin(&Wire))
   {
-    Serial.println(F("Couldn't find Real Time Clock featherwing."));
-    pulse_indicator_light_1();
-    flash_indicator_light_1();
-
-    power_ctrl_check_mag_switch();
+    println(F("Couldn't find Real Time Clock featherwing."));
+    indicator_light_pulse(LED_STAT1);
+    indicator_light_flash(LED_STAT1);
+    return false;
   }
 
   bool clock_initialized = true;
@@ -35,7 +37,7 @@ bool clock_setup_rtc()
   // Initialize real-time clock
   if (not clock_initialized or rtc.lostPower() or date_code_was_compiled.unixtime() > rtc.now().unixtime())
   {
-    Serial.println(F("RTC is NOT initialized, let's set the time!"));
+    println(F("RTC is NOT initialized - let's set the time!"));
     // When time needs to be set on a new device, or after a power loss, the
     // following line sets the RTC to the date & time this sketch was compiled
     rtc.adjust(date_code_was_compiled);
@@ -52,17 +54,17 @@ bool clock_setup_rtc()
   return true;
 }
 
-char *clock_get_datetime_string()
+String clock_get_datetime_string()
 {
-  char *outStr = new char[30];
   DateTime date = rtc.now();
-  sprintf(outStr, "%02d/%02d/%02d %02d:%02d:%02d", date.month(), date.day(), date.year(), date.hour(), date.minute(), date.second());
-  return outStr;
+  char dateStr[30];
+  sprintf(dateStr, "%02d/%02d/%02d %02d:%02d:%02d", date.month(), date.day(), date.year(), date.hour(), date.minute(), date.second());
+  return String(dateStr);
 }
 
 void clock_print_time()
 {
-  char *timeStr = clock_get_datetime_string();
-  Serial.print("Current Clock Time: ");
-  Serial.println(timeStr);
+  String timeStr = clock_get_datetime_string();
+  print("Current Clock Time: ");
+  println(timeStr);
 }

@@ -150,7 +150,7 @@ void format_sd_card()
                 "Cards larger than 2 GiB and up to 32 GiB will be formatted\n"
                 "FAT32. Cards larger than 32 GiB will be formatted exFAT.\n"
                 "\n"
-                "Warning, all data on the card will be erased.\n"
+                "Warning! all data on the card will be erased.\n"
                 "Enter 'Y' to continue: ")
          << endl;
     while (!Serial.available())
@@ -164,7 +164,7 @@ void format_sd_card()
     cout << c << endl;
     if (c != 'Y')
     {
-        cout << F("Quiting, you did not enter 'Y'.\n");
+        cout << F("Quiting. you did not enter 'Y'.\n");
         return;
     }
 
@@ -222,7 +222,7 @@ void format_sd_card()
     cout << c << endl;
     if (!strchr("EFQ", c))
     {
-        cout << F("Quiting, invalid option entered.") << endl;
+        cout << F("Quiting. invalid option entered.") << endl;
         return;
     }
     // clean up existing sd related stuff:

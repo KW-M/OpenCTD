@@ -1,4 +1,8 @@
 #include "config_storage.hpp"
+//#include "Adafruit_USBD_CDC.h"
+#include "power_control.hpp"
+#include "utility_functions.hpp"
+#include "sdcard.hpp"
 
 // this file requires these libries from arduino library manager
 // - ArduinoSTL by Mike Matera (used version 1.3.3)
@@ -37,10 +41,10 @@ char *get_feather_serial_number()
  */
 bool json_config_to_struct(JsonDocument &doc)
 {
-  onboard_config.log_raw_values = doc["log_raw_values"] | default_onboard_config.log_raw_values;
-  onboard_config.seconds_between_log_events = doc["seconds_between_log_events"] | default_onboard_config.seconds_between_log_events;
-  onboard_config.max_seconds_to_resume_writing_to_previous_logfile_after_reboot = doc["max_seconds_to_resume_writing_to_previous_logfile_after_reboot"] | default_onboard_config.max_seconds_to_resume_writing_to_previous_logfile_after_reboot;
-  if (doc["last_datalog_file_path"].as<String>().length() > 0)
+  onboard_config.log_raw_values = doc.containsKey("log_raw_values") ? doc["log_raw_values"].as<bool>() : default_onboard_config.log_raw_values;
+  onboard_config.seconds_between_log_events = doc.containsKey("seconds_between_log_events") ? doc["seconds_between_log_events"].as<float>() : default_onboard_config.seconds_between_log_events;
+  onboard_config.max_seconds_to_resume_writing_to_previous_logfile_after_reboot = doc.containsKey("max_seconds_to_resume_writing_to_previous_logfile_after_reboot") ? doc["max_seconds_to_resume_writing_to_previous_logfile_after_reboot"].as<int>() : default_onboard_config.max_seconds_to_resume_writing_to_previous_logfile_after_reboot;
+  if (doc.containsKey("last_datalog_file_path") && doc["last_datalog_file_path"].as<String>().length() > 0)
   {
     strcpy(onboard_config.last_datalog_file_path, doc["last_datalog_file_path"].as<String>().c_str());
   }
@@ -78,7 +82,7 @@ String get_tube_config_file_path()
 
 void write_onboard_config()
 {
-  Serial.println("Writing onboard config...");
+  println("Writing onboard config...");
 
   // make sure the config storage folder is created:
   sd_create_folder(CONFIG_STORAGE_FOLDER_PATH);
@@ -117,7 +121,7 @@ void read_onboard_config()
   // If the file does not exist or cannot be opened, write the default config and return
   if (not openSuccessful)
   {
-    Serial.println("Failed to open config file: " + configFilePath + " - using default config values");
+    println("Failed to open config file: " + configFilePath + " - using default config values");
     onboard_config = default_onboard_config;
     write_onboard_config();
     return;
@@ -130,7 +134,7 @@ void read_onboard_config()
   // Test if parsing succeeds.
   if (error)
   {
-    Serial.print(F("deserializeJson() failed: "));
+    print(F("deserializeJson() failed: "));
     Serial.println(error.f_str());
   }
   else
@@ -139,7 +143,7 @@ void read_onboard_config()
     newConfigValuesWereSet = json_config_to_struct(doc);
   }
 
-  Serial.println("Config read.");
+  println("Config read.");
 
   if (newConfigValuesWereSet)
   {
@@ -149,17 +153,17 @@ void read_onboard_config()
 
 void setup_config_storage()
 {
-  Serial.print(F("Feather Serial Number: "));
+  print(F("Feather Serial Number: "));
   Serial.println(get_feather_serial_number());
 
-  Serial.print(F("Greatest Temp Probe Addr: "));
+  print(F("Greatest Temp Probe Addr: "));
   Serial.println(temp_get_highest_probe_address());
 
   read_onboard_config();
   // bool loadWasSuccessful = readOnboardConfig();
   // if (not loadWasSuccessful)
   // {
-  //   Serial.println(F("\n!!! Failed to read onboard config file !!! \n - Is the CTD tube plugged in? \n - Have you calibrated this CTD yet? \n - Did you keep the same SD Card, Electronics Board and CTD tube used durring calibration? \n"));
+  //   println(F("\n!!! Failed to read onboard config file !!! \n - Is the CTD tube plugged in? \n - Have you calibrated this CTD yet? \n - Did you keep the same SD Card; Electronics Board; and CTD tube used durring calibration? \n"));
   // }
 }
 
@@ -222,6 +226,10 @@ void clear_sensor_calibration(SensorCalibration_t *sensorCalibration)
 SensorCalibration_t read_sensor_calibration(String jsonKey, bool onboardComponent)
 {
   SensorCalibration_t sensorCalibration;
+  sensorCalibration.length = 0;
+  sensorCalibration.measuredValues = new float[0];
+  sensorCalibration.measuredValues = new float[0];
+
   StaticJsonDocument<412> doc;
 
   // open the file
@@ -230,7 +238,7 @@ SensorCalibration_t read_sensor_calibration(String jsonKey, bool onboardComponen
   bool fileReadable = sd_open_file(configFile, configFilePath.c_str(), O_RDONLY);
   if (not fileReadable)
   {
-    Serial.println("Failed to open config file: " + configFilePath + " - using default config values");
+    println("Failed to open config file: " + configFilePath + " - using default config values");
     clear_sensor_calibration(&sensorCalibration);
     write_sensor_calibration(jsonKey, onboardComponent, &sensorCalibration);
     return sensorCalibration;
@@ -245,7 +253,7 @@ SensorCalibration_t read_sensor_calibration(String jsonKey, bool onboardComponen
     // Test if parsing succeeds.
     if (error)
     {
-      Serial.print(F("deserializeJson() failed: "));
+      print(F("deserializeJson() failed: "));
       Serial.println(error.f_str());
       clear_sensor_calibration(&sensorCalibration);
       return sensorCalibration;
@@ -265,11 +273,11 @@ SensorCalibration_t read_sensor_calibration(String jsonKey, bool onboardComponen
     }
     else
     {
-      Serial.print(F("calibration json not found:"));
+      print(F("- calibration json not found: "));
       Serial.println(jsonKey);
     }
   }
-  // Serial.print(F("return calibration length: "));
+  // print(F("return calibration length: "));
   // Serial.println(sensorCalibration.length);
   return sensorCalibration;
 }
@@ -305,18 +313,30 @@ void add_calibration_point(float measuredValue, float realValue, SensorCalibrati
 
 float calculate_calibrated_value(float measuredValue, SensorCalibration_t *sensorCalibration)
 {
-  return measuredValue == NAN ? NAN : multiMap(measuredValue, sensorCalibration->measuredValues, sensorCalibration->realValues, sensorCalibration->length);
+  if (isnan(measuredValue))
+    return NAN;
+  else if (isnan(sensorCalibration->length) || sensorCalibration->length == 0)
+    return measuredValue;
+  else
+    return multiMap(measuredValue, sensorCalibration->measuredValues, sensorCalibration->realValues, sensorCalibration->length);
 }
 
 void print_calibration_values(SensorCalibration_t *sensorCalibration)
 {
-  Serial.println("Calib:");
-  for (int i = 0; i < sensorCalibration->length; i++)
+  print("Calibration: ");
+  if (sensorCalibration->length > 0)
   {
-    Serial.print(sensorCalibration->measuredValues[i]);
-    Serial.print("->");
-    Serial.print(sensorCalibration->realValues[i]);
-    Serial.print(" | ");
+    for (int i = 0; i < sensorCalibration->length; i++)
+    {
+      Serial.print(sensorCalibration->measuredValues[i]);
+      print("->");
+      Serial.print(sensorCalibration->realValues[i]);
+      print(" | ");
+    }
+  }
+  else
+  {
+    print("Not Calibrated.");
   }
   Serial.println();
 }

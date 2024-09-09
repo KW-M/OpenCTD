@@ -4,20 +4,12 @@
 #include "ssrov_ctd_pinouts_and_constants.hpp"
 #if ENABLE_BNO055_ORIENTATION_SENSOR
 
-#include <Wire.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055.h>
-#include <utility/imumaths.h>
-
-#include "utility_functions.hpp"
-#include "power_control.hpp"
-#include "command_mode.hpp"
-#include "config_storage.hpp"
-#include "sdcard.hpp"
 
 #if !defined(VBATPIN) or !defined(REFERENCE_V3_PIN) or !defined(MIN_BATT_VOLTS_CUTOFF)
 #error "Make sure your pinnouts & constants.h is included first and contains the constants listed in the !defined statements on the first line of this file."
 #endif
+
+extern bool orient_sensor_has_locked_on;
 
 // ----------------------------------------
 // --- Orientation Sensor Functions  ------
@@ -37,7 +29,6 @@ float orient_get_cumulative_yaw_angle();
 void orient_displaySensorDetails(void);
 void orient_displaySensorStatus(void);
 void orient_displayCalibrationStatus(void);
-void orient_log_all_values();
 
 #endif
 #endif

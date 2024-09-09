@@ -2,7 +2,6 @@
 // -- (must be included before everything else) ----------------------
 #include "ssrov_ctd_pinouts_and_constants.hpp"
 // -------------------------------------------------------------------
-
 #include "power_control.hpp"
 #include "sd_usb_passthrough.hpp"
 #include "utility_functions.hpp"
@@ -14,10 +13,9 @@
 #include "config_storage.hpp"
 #include "temp_probe.hpp"
 #include "conductivity_sensor.hpp"
-#include "photoresistor.hpp"
+#include "light_sensor.hpp"
 #include "pressure_sensor.hpp"
 #include "orientation_sensor.hpp"
-
 
 /*  Each tab at the top, and the include statments abvoe corresponds to a file in this folder and those files help organize the different functions.
     We're using .hpp files instead of .ino (though they both just contain code) beacause we can include them in the order we want and they'll all get compiled
@@ -27,90 +25,125 @@
 */
 
 /* You'll need these libraries:
-   click the links in the arduino ide to open the library manager (or search for them yourself):
-  http://librarymanager/All#SdFat < Use the one by Bill Greiman (NOT the adafruit port (was not updated at time of writing))
-  http://librarymanager/All#RTClib < use the one by Adafruit
-  http://librarymanager/All#Adafruit_Unified_Sensor
-  http://librarymanager/All#Adafruit_BNO055
-  You'll also need to download these libraries and install them manually:
-  (See this tutorial for how to manually install libraries): https://www.baldengineer.com/installing-arduino-library-from-github.html
-  https://github.com/millerlp/MS5803_14
-  https://github.com/milesburton/Arduino-Temperature-Control-Library
-  https://github.com/OceanographyforEveryone/OpenCTD/tree/master/OpenCTD_Feather_Adalogger/Support_Code/SoftwareSerial
+   [cmd/ctl + click the links in the Arduino IDE to open the library manager - or search for them yourself]:
+  - http://librarymanager/All#SdFat_Bill_Greiman < Use "SdFat by Bill Greiman" version 2.2.2 do NOT use the Adafruit fork - it was not as updated at time of writing
+  - http://librarymanager/All#RTClib_Adafruit < use "RTClib by Adafruit" version 2.1.3
+  - http://librarymanager/All#Adafruit_BNO055 < Use "Adafruit BNO055 by Adafruit" version 1.6.0
+  - http://librarymanager/All#SparkFun_MS5803-14BA < Use "SparkFun MS5803-14BA Pressure Sensor by Sparkful" version 1.1.4
+  - http://librarymanager/All#DallasTemperature_Miles_Burton < Use "DallasTemperature by Miles Burton" version 3.9.0
+  - http://librarymanager/All#hp_BH1750 < use "hp_BH1750 by Stefan Armborst" aka Starmbi on github version 1.0.2
+  - http://librarymanager/All#ArduinoJson_Benoit_Blanchon < use "ArduinoJson by Benoit Blanchon" version 6.21.2
+  - http://librarymanager/All#MultiMap_Rob_Tillaart < use ""
+  - http://librarymanager/All#StreamUtils_Benoit_Blanchon
+
+  Alternative places to install libraries manually:
+   [ See this tutorial for how to manually install libraries: https://www.baldengineer.com/installing-arduino-library-from-github.html]
+  - https://github.com/millerlp/MS5803_14
+  - https://github.com/milesburton/Arduino-Temperature-Control-Library
+  - (no longer used) https://github.com/OceanographyforEveryone/OpenCTD/tree/master/OpenCTD_Feather_Adalogger/Support_Code/SoftwareSerial
+  - https://github.com/Starmbi/hp_BH1750
 */
-bool isValid = true;
-String csv_header = "";
-void setup() {
 
-  // Turn on LED to show aliveness
-  indicator_light_1_on();
+// Header row for CSV datalog files (this string gets assembled in the setup() function)
+String csv_header = String("");
 
-  // power ctrl setup should go as early as possible
+/* Initital function that runs */
+void setup()
+{
+
+
+  // power switch control setup enables the hold to power on/off function.
   power_ctrl_setup();
 
-  // sd passthrough pre setup MUST go before Serial or SD card setup/initilization.
+  // SD Card usb passthrough "pre" setup MUST go before Serial or SD Card setup/initilization and should happen
+  // almost immediately after startup for the computer to correctly recognizes the feather as a "Mass Storage Device"
   sd_usb_passthrough_pre_setup();
+
+   // Show board has powered on.
+  indicator_light_on(LED_STAT2);
 
 // electrical conductivity pre setup MUST GO BEFORE ANY I2C SETUP - Before clock or other sensor setup (because it temporarlly uses the I2C pins as UART pins)
 #if ENABLE_CONDUCTIVITY_SENSOR
   ec_sensor_pre_setup();
 #endif
 
-  // SETUP SD-CARD -------------------------
-  Serial.println(F("Setting up SD Card... "));
-  sd_setup_sd_card();               // NOTE: If the sd card is not inserted or failing this function has a loop that will keep trying again until it finds a working sd card.
-  sd_usb_passthrough_post_setup();  // continue setting up sd card usb passthrough once sd card is setup.
-
   // SETUP SERIAL CONNECTION ----- (To send text to / recive text from the serial monitor on a computer) -----
-  delay(2000);
-  Serial.begin(115200);                                                        // now switch to the faster serial baud rate of 115200;
-  while ((not Serial or Serial.availableForWrite() == 0) and millis() < 5000)  // Wait for computer to connect or a 5 second timeout to elapse before continuing.
+  Serial.begin(115200);                                               // Switch to the faster serial baud rate of 115200 - NOTE: On feather M0 boards the baud rate is generally irrelevant/set by the USB host;
+  while ((not Serial or Serial.available() == 0) and millis() < 3000) // Wait for computer to connect or a 3 second timeout to elapse before continuing.
   {
+    power_ctrl_check_switch();
+    indicator_light_flash(LED_STAT1); // flash the red led
+    handle_user_commands();
     delay(10);
-    flash_indicator_light_1();
-    power_ctrl_check_mag_switch();
   }
 
+  #if defined(WIRE_HAS_TIMEOUT)
+    Serial.println("Setting i2c timeout");
+    Wire.setWireTimeout(25000 /* us */, true /* reset_on_timeout */);
+  #endif
+
   // SETUP CLOCK --------------------------
-  Serial.print("Setting up real time clock... ");
-  while (not clock_setup_rtc()) {  // if clock setup fails, the clock_setup_rtc() function will return false and this loop will run, pulsing the indicator light & trying again.
-    pulse_indicator_light_1();
-    power_ctrl_check_mag_switch();
+  print("Initilizing clock - ");
+  while (not clock_setup_rtc())
+  { // if clock setup fails, the clock_setup_rtc() function will return false and this loop will run, pulsing the indicator light & trying again.
+    power_ctrl_check_switch();
+    indicator_light_pulse(LED_STAT1);
+    handle_user_commands();
+    delay(10);
   }
   clock_print_time();
   csv_header += RTC_CSV_HEADER;
+
+  // SETUP SD-CARD -------------------------
+  println(F("Initilizing SD Card"));
+  while (not sd_setup_sd_card())
+  { // NOTE: If the sd card is not inserted or failing this function returns false and so will loop.
+
+    power_ctrl_check_switch();
+    indicator_light_flash(LED_STAT1);
+    indicator_light_flash(LED_STAT1);
+    handle_user_commands();
+    delay(1000);
+  }
   sd_enable_file_timestamps();
-
-
   setup_config_storage();
   write_onboard_config();
+  sd_usb_passthrough_post_setup(); // continue Initilizing sd card usb passthrough once sd card is setup.
 
 #if ENABLE_PRESSURE_SENSOR
-  Serial.println(F("Setting up pressure sensor..."));
+  println(F("Initilizing pressure sensor "));
   pressure_setup_sensor();
   csv_header += PRESSURE_SENSOR_CSV_HEADER;
 #endif
 
 #if ENABLE_TEMP_PROBE
-  Serial.println(F("Setting up temperature probes..."));
-  temp_setup_sensors();  // setup all 3 temperature probes
+  println(F("Initilizing temperature probes"));
+  temp_setup_sensors(); // setup all 3 temperature probes
   csv_header += TEMP_PROBE_CSV_HEADER;
 #endif
 
 #if ENABLE_CONDUCTIVITY_SENSOR
-  Serial.println(F("Setting up electrical conductivity sensor board..."));
-  ec_setup_sensor();
+  println(F("Initilizing conductivity sensor"));
+  ec_setup_sensor(); // setup onboard ec chip
   csv_header += CONDUCTIVITY_SENSOR_CSV_HEADER;
 #endif
 
-#if ENABLE_PHOTORESISTOR
-  Serial.println(F("Setting up light sensor..."));
-  photoresistor_setup_sensor();
-    csv_header += PHOTORESISTOR_CSV_HEADER;
+#if ENABLE_LIGHT_SENSOR
+  while (true)
+  {
+    println(F("Initilizing light sensor..."));
+    if (light_sensor_setup_sensor())
+      break;
+    indicator_light_flash(LED_STAT2);
+    handle_user_commands();
+    delay(1000);
+    power_ctrl_check_switch();
+  }
+  csv_header += LIGHT_SENSOR_CSV_HEADER;
 #endif
 
 #if ENABLE_BNO055_ORIENTATION_SENSOR
-  Serial.println(F("Setting up orientation sensor... "));
+  println(F("Initilizing orientation sensor"));
   orient_setup_sensor();
   csv_header += BNO055_ORIENTATION_SENSOR_CSV_HEADER;
 #endif
@@ -119,48 +152,61 @@ void setup() {
   csv_header += BATTERY_MONITOR_CSV_HEADER;
 #endif
 
-  Serial.println(F("==============================================================================="));
-  Serial.println(F("To see available commands, send any character from the Arduino Serial Monitor."));
-  Serial.println(F("==============================================================================="));
-
-  if (sd_usb_passthrough_read_flag_is_set()) {
-    Serial.println(F("SD Card Passthrough Active, Send 'd' to disable and start logging to the sd card."));
-    Serial.println();
-  }
+  println(F("==========================================================================="));
+  println(F("To see available commands - send any letter from the Arduino Serial Monitor."));
+  println(F("==========================================================================="));
   Serial.flush();
+  indicator_light_off(LED_STAT2);
 }
 
 unsigned long lastDatalogTime = 0;
 
-void loop() {
-
-  // check for power off switch hold down.
-  power_ctrl_check_mag_switch();
-
-  // Respond to serial commands from the computer...
-  read_serial_input_characters();
-
-  // if arduino serial monitor on a connected computer sends aything, run the command mode loop:
-  if (cmd_ready) {
-    command_mode_loop();
-    if (sd_usb_passthrough_read_flag_is_set()) {
-      Serial.println(F("SD Card Passthrough Active, Send 'd' to disable and start logging to the sd card."));
-      Serial.println();
-    }
+void loop()
+{
+  power_ctrl_check_switch();
+  if (board_will_power_down)
+  {
+    // Turn OFF everything to indicate
+    // power down state
+    sd_usb_passthrough_disable();
+    sd_close();
+    indicator_light_off(LED_STAT1);
+    indicator_light_off(LED_STAT2);
+    indicator_light_off(LED_STAT3);
+    return;
   }
 
-  if (sd_usb_passthrough_read_flag_is_set()) {
-    return;  // do not continue logging while passthrough is active
+  handle_user_commands();
+  if (usb_is_connected())
+  {
+    indicator_light_on(LED_STAT1);
+    if (!debug_mode)
+      return;
+  }
+  else
+  {
+    command_mode_active_sensor = SensorTypes::NONE;
+    indicator_light_off(LED_STAT1);
   }
 
+  // if (sd_usb_passthrough_read_flag_is_set()) {2345
+  //   // if (user_command_has_been_processed)
+  //   delay(1000);
+  //   println(F("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSD Card Passthrough Active - Send the letter d to disable and start logging to the sd card. \nSend any other letter to see available commands"));
+  //   return;  // do not continue logging while passthrough is active
+  // }
+
+#if ENABLE_LIGHT_SENSOR
+  light_sensor_refresh_value();
+#endif
 
 #if ENABLE_BNO055_ORIENTATION_SENSOR
   // check if the orentation sensor hasn't locked on
-  if (not orient_sensor_locked_on()) {
-    Serial.print("\n");
-    Serial.print(F("Compass not locked on. Rotate the board until light stops flashing. "));
+  if (not orient_sensor_locked_on())
+  {
+    print(F("\nCompass not locked on. Rotate the board until light stops flashing. "));
     orient_displayCalibrationStatus();
-    flash_indicator_light_1();
+    indicator_light_flash(LED_STAT1);
   }
 #endif
 
@@ -172,204 +218,102 @@ void loop() {
   // Check if the data log file is working by trying to write the new line character to the datalog:
   // This will be true (ie: not working) on the first loop because the datalogFile isn't open yet, so we open & setup the log file inside the if statement below.
 
-  while (!datalogFile or !sd_log_newline(datalogFile)) {
-    Serial.println(F("\nSetting Up Datalog File..."));
+  while (!datalogFile or !sd_log_newline(datalogFile))
+  {
+    println(F("\nSetting Up Datalog File..."));
+    if (csv_header.endsWith(","))
+      csv_header.substring(0, csv_header.length() - 1); // remove trailing comma from the csv header
     setup_datalog_file(csv_header.c_str());
-    pulse_indicator_light_1();
+    write_onboard_config();
+    indicator_light_pulse(LED_STAT1);
   }
- 
-  // show a warning if we are set to log RAW / uncalibrated values:
-  if (onboard_config.log_raw_values) Serial.print(F("[SHOWING_UNCALIBRATED_VALUES!]"));
 
-  Serial.print(F("Date_Time:"));
-  char *time = clock_get_datetime_string();
-  sd_log_string(datalogFile, time);  // log the date & time from the real time clock and print it to the console
-  delete time;
+  // show a warning if we are set to log RAW / uncalibrated values:
+  if (onboard_config.log_raw_values && usb_is_connected())
+    print(F("[SHOWING_UNCALIBRATED_VALUES!]"));
+
+  String time = clock_get_datetime_string();
+  log_string("Date_Time", time.c_str()); // log the date & time from the real time clock and print it to the console
 
 #if ENABLE_PRESSURE_SENSOR
-  pressure_log_value();  // log the pressure sensor value
+  log_value("Pressure_mBar", pressure_get_value()); // log the pressure sensor value
 #endif
 
 #if ENABLE_TEMP_PROBE
-  temp_probes_refresh_values();  // ask all the temperature probes to take a new measurement (if they are ready).
-  temp_log_value(0);             // write the last measured value of the 1st temp probe to the console
-  temp_log_value(1);             // write the last measured value of the 2nd temp probe to the console
-  temp_log_value(2);             // write the last measured value of the 3rd temp probe to the console
+  temp_probes_refresh_values();            // ask all the temperature probes to take a new measurement (if they are ready).
+  log_value("Temp1_C", temp_get_value(0)); // write the last measured value of the 1st temp probe to the console
+  log_value("Temp2_C", temp_get_value(1)); // write the last measured value of the 2nd temp probe to the console
+  log_value("Temp3_C", temp_get_value(2)); // write the last measured value of the 3rd temp probe to the console
 #endif
 
 #if ENABLE_CONDUCTIVITY_SENSOR
-  ec_log_value();
+  log_value("Conductivity", ec_get_value());
 #endif
 
-#if ENABLE_PHOTORESISTOR
-  photoresistor_log_value();
+#if ENABLE_LIGHT_SENSOR
+  log_value("LightLvl_lux", light_sensor_get_value());
 #endif
 
 #if ENABLE_BNO055_ORIENTATION_SENSOR
-  orient_update_values();  // Ask the orientation sensor/IMU to measure the acceleration/orientation etc. at this point in time.
-  orient_log_all_values();
+  orient_update_values(); // Ask the orientation sensor/IMU to measure the acceleration/orientation etc. at this point in time.
+  log_value("cumulative_yaw_angle", orient_sensor_has_locked_on ? orient_get_cumulative_yaw_angle() : NAN);
+  log_value("NS_pitch", orient_sensor_has_locked_on ? orient_get_NS_pitch() : NAN);
+  log_value("EW_pitch", orient_sensor_has_locked_on ? orient_get_EW_pitch() : NAN);
+  log_value("NS_accel", orient_sensor_has_locked_on ? orient_get_NS_accel() : NAN);
+  log_value("EW_accel", orient_sensor_has_locked_on ? orient_get_EW_accel() : NAN);
 #endif
 
 #if ENABLE_BATTERY_MONITOR
-  battery_log_value();
+  log_value("Battery", battery_get_value());
 #endif
 
-  Serial.print("Mem:");
+  print("Mem:");
   Serial.print(available_memory());
-  Serial.print(",");
+  print(",");
 
-  flash_indicator_light_2();
+  log_value("Memory", available_memory());
+
+  indicator_light_flash(LED_STAT2);
 }
 
-// /*********************************************************************
-//  Adafruit invests time and resources providing this open source code,
-//  please support Adafruit and open-source hardware by purchasing
-//  products from Adafruit!
+void log_value(const char *name, float value)
+{
+  return log_value(name, value, false);
+}
 
-//  MIT license, check LICENSE for more information
-//  Copyright (c) 2019 Ha Thach for Adafruit Industries
-//  All text above, and the splash screen below must be included in
-//  any redistribution
-// *********************************************************************/
+void log_value(const char *name, float value, bool isRaw)
+{
+  if (usb_is_connected())
+  {
+    if (Serial.availableForWrite() == 0)
+      return;
+    if (isRaw)
+      print("RAW_");
+    Serial.print(name);
+    print("(");
+    Serial.print(value, 5);
+    print("):");
+    Serial.print(value);
+    print(",");
+  }
+  else
+  {
+    sd_log_value(datalogFile, value);
+  }
+}
 
-// /* This example expose SD card as mass storage using
-//  * SdFat Library
-//  */
-
-// #include "SPI.h"
-// #include "SdFat.h"
-// #include "ssrov_ctd_pinouts_and_constants.hpp"
-// #include "sdcard.hpp"
-// #include "Adafruit_TinyUSB.h"
-
-// const int chipSelect = 4;
-
-// // File system on SD Card
-// // SdFat sd;
-
-// SdFile root;
-// SdFile file;
-
-// // USB Mass Storage object
-// Adafruit_USBD_MSC usb_msc;
-
-// // Set to true when PC write to flash
-// bool changed;
-
-// // the setup function runs once when you press reset or power the board
-// void setup()
-// {
-//   pinMode(LED_BUILTIN, OUTPUT);
-
-//   // Set disk vendor id, product id and revision with string up to 8, 16, 4 characters respectively
-//   usb_msc.setID("Adafruit", "SD Card", "1.0");
-
-//   // Set read write callback
-//   usb_msc.setReadWriteCallback(msc_read_cb, msc_write_cb, msc_flush_cb);
-
-//   // Still initialize MSC but tell usb stack that MSC is not ready to read/write
-//   // If we don't initialize, board will be enumerated as CDC only
-//   usb_msc.setUnitReady(false);
-//   usb_msc.begin();
-//   /*
-//    */
-
-//   Serial.begin(115200);
-//   // while (!Serial)
-//   //   delay(10); // wait for native usb
-
-//   Serial.println("Adafruit TinyUSB Mass Storage SD Card example");
-
-//   Serial.print("\nInitializing SD card ... ");
-//   Serial.print("CS = ");
-//   Serial.println(chipSelect);
-
-//   if (!sd.begin(chipSelect, SD_SCK_MHZ(12)))
-//   {
-//     Serial.println("initialization failed. Things to check:");
-//     Serial.println("* is a card inserted?");
-//     Serial.println("* is your wiring correct?");
-//     Serial.println("* did you change the chipSelect pin to match your shield or module?");
-//     while (1)
-//       delay(1);
-//   }
-
-//   // Size in blocks (512 bytes)
-//   uint32_t block_count = sd.vol()->sectorsPerCluster() * sd.vol()->clusterCount();
-
-//   Serial.print("Volume size (MB):  ");
-//   Serial.println((block_count / 2) / 1024);
-
-//   // Set disk size, SD block size is always 512
-//   usb_msc.setCapacity(block_count, 512);
-
-//   // MSC is ready for read/write
-//   usb_msc.setUnitReady(true);
-
-//   changed = true; // to print contents initially
-// }
-
-// void loop()
-// {
-//   if (changed)
-//   {
-//     root.open("/");
-//     Serial.println("SD contents:");
-
-//     // Open next file in root.
-//     // Warning, openNext starts at the current directory position
-//     // so a rewind of the directory may be required.
-//     while (file.openNext(&root, O_RDONLY))
-//     {
-//       file.printFileSize(&Serial);
-//       Serial.write(' ');
-//       file.printName(&Serial);
-//       if (file.isDir())
-//       {
-//         // Indicate a directory.
-//         Serial.write('/');
-//       }
-//       Serial.println();
-//       file.close();
-//     }
-
-//     root.close();
-
-//     Serial.println();
-
-//     changed = false;
-//     delay(1000); // refresh every 0.5 second
-//   }
-// }
-
-// // Callback invoked when received READ10 command.
-// // Copy disk's data to buffer (up to bufsize) and
-// // return number of copied bytes (must be multiple of block size)
-// int32_t msc_read_cb(uint32_t lba, void *buffer, uint32_t bufsize)
-// {
-//   return sd.card()->readSectors(lba, (uint8_t *)buffer, bufsize / 512) ? bufsize : -1;
-// }
-
-// // Callback invoked when received WRITE10 command.
-// // Process data in buffer to disk's storage and
-// // return number of written bytes (must be multiple of block size)
-// int32_t msc_write_cb(uint32_t lba, uint8_t *buffer, uint32_t bufsize)
-// {
-//   digitalWrite(LED_BUILTIN, HIGH);
-
-//   return sd.card()->writeSectors(lba, buffer, bufsize / 512) ? bufsize : -1;
-// }
-
-// // Callback invoked when WRITE10 command is completed (status received and accepted by host).
-// // used to flush any pending cache.
-// void msc_flush_cb(void)
-// {
-//   sd.card()->syncDevice();
-
-//   // clear file system's cache to force refresh
-//   // sd.vol()
-
-//   changed = true;
-
-//   digitalWrite(LED_BUILTIN, LOW);
-// }
+void log_string(const char *name, const char *str)
+{
+  if (usb_is_connected())
+  {
+    if (Serial.availableForWrite() == 0)
+      return;
+    Serial.print(name);
+    Serial.print(str);
+    print(",");
+  }
+  else
+  {
+    sd_log_string(datalogFile, str);
+  }
+}

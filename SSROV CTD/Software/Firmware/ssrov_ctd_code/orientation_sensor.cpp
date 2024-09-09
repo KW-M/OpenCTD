@@ -1,12 +1,22 @@
 #if ENABLE_BNO055_ORIENTATION_SENSOR
 #include "orientation_sensor.hpp"
+#include "utility_functions.hpp"
+#include "power_control.hpp"
+#include "command_mode.hpp"
+#include "config_storage.hpp"
+#include "sdcard.hpp"
+
+#include <Wire.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BNO055.h>
+#include <utility/imumaths.h>
 
 // -------------------------------------
 // -------- Global Variables -----------
 // -------------------------------------
 
 Adafruit_BNO055 bno = Adafruit_BNO055(BNO055_CHIP_ID, BNO055_I2C_ADDRESS);
-bool sensor_has_locked_on = false;
+bool orient_sensor_has_locked_on = false;
 float yaw_angle;
 float pitch_angle;
 float roll_angle;
@@ -24,11 +34,11 @@ void orient_setup_sensor()
   int counter = ORIENT_SENSOR_SETUP_TIMEOUT_COUNT;
   while (not bno.begin() and counter > 0)
   { // initilize the orientation sensor
-    Serial.print("No BNO055 orientation sensor detected | Continuing in: ");
+    print("No BNO055 orientation sensor detected | Continuing in: ");
     Serial.println(counter--);
-    Serial.println(" -- If one is installed, check your wiring & the sensor's I2C address.");
+    println(" -- If one is installed then check your wiring & the sensor's I2C address.");
     delay(500); // Delay the program for half a second if the orientation sensor isn't found.
-    power_ctrl_check_mag_switch();
+    power_ctrl_check_switch();
   }
   if (counter == 0)
   {
@@ -52,8 +62,8 @@ bool orient_sensor_locked_on()
   uint8_t sysLock, gyro, accel, mag;
   sysLock = gyro = accel = mag = 0;
   bno.getCalibration(&sysLock, &gyro, &accel, &mag);
-  sensor_has_locked_on = (sysLock != 0);
-  return sensor_has_locked_on;
+  orient_sensor_has_locked_on = (sysLock != 0);
+  return orient_sensor_has_locked_on;
 }
 
 void orient_get_orientation_reading()
@@ -76,7 +86,7 @@ void orient_get_accel_reading()
 
 void orient_update_values()
 {
-  if (not sensor_has_locked_on)
+  if (not orient_sensor_has_locked_on)
     orient_sensor_locked_on();
   orient_get_orientation_reading();
   orient_get_accel_reading();
@@ -84,7 +94,7 @@ void orient_update_values()
 
 float orient_get_NS_pitch()
 {
-  if (not sensor_has_locked_on)
+  if (not orient_sensor_has_locked_on)
     return pitch_angle;
   float yawCos = cos(yaw_angle * DEGREE_TO_RADIAN);
   float yawCos90 = cos((yaw_angle + 90) * DEGREE_TO_RADIAN);
@@ -94,7 +104,7 @@ float orient_get_NS_pitch()
 
 float orient_get_EW_pitch()
 {
-  if (not sensor_has_locked_on)
+  if (not orient_sensor_has_locked_on)
     return roll_angle;
   float yawSin = sin(yaw_angle * DEGREE_TO_RADIAN);
   float yawSin90 = sin((yaw_angle + 90) * DEGREE_TO_RADIAN);
@@ -104,7 +114,7 @@ float orient_get_EW_pitch()
 
 float orient_get_NS_accel()
 {
-  if (not sensor_has_locked_on)
+  if (not orient_sensor_has_locked_on)
     return accel_y;
   float yawCos = cos(yaw_angle * DEGREE_TO_RADIAN);
   float yawCos90 = cos((yaw_angle + 90) * DEGREE_TO_RADIAN);
@@ -114,7 +124,7 @@ float orient_get_NS_accel()
 
 float orient_get_EW_accel()
 {
-  if (not sensor_has_locked_on)
+  if (not orient_sensor_has_locked_on)
     return accel_x;
   float yawSin = sin(yaw_angle * DEGREE_TO_RADIAN);
   float yawSin90 = sin((yaw_angle + 90) * DEGREE_TO_RADIAN);
@@ -125,7 +135,7 @@ float orient_get_EW_accel()
 int16_t last_yaw_angle = 0;
 float orient_get_cumulative_yaw_angle()
 {
-  if (not sensor_has_locked_on)
+  if (not orient_sensor_has_locked_on)
     return NAN; // Return "Not a Number"
   // calculate the change in yaw angle accounting for 360->0 degree wraparound
   int d = abs(int(yaw_angle) - last_yaw_angle) % 360;
@@ -147,23 +157,23 @@ void orient_displaySensorDetails(void)
 {
   sensor_t sensor;
   bno.getSensor(&sensor);
-  Serial.println(F("------ Orientation Sensor Details: ------------"));
-  Serial.print(F("Sensor:       "));
+  println(F("------ Orientation Sensor Details: ------------"));
+  print(F("Sensor:       "));
   Serial.println(sensor.name);
-  Serial.print(F("Driver Ver:   "));
+  print(F("Driver Ver:   "));
   Serial.println(sensor.version);
-  Serial.print(F("Unique ID:    "));
+  print(F("Unique ID:    "));
   Serial.println(sensor.sensor_id);
-  Serial.print(F("Max Value:    "));
+  print(F("Max Value:    "));
   Serial.print(sensor.max_value);
-  Serial.println(F(" xxx"));
-  Serial.print(F("Min Value:    "));
+  println(F(" xxx"));
+  print(F("Min Value:    "));
   Serial.print(sensor.min_value);
-  Serial.println(F(" xxx"));
-  Serial.print(F("Resolution:   "));
+  println(F(" xxx"));
+  print(F("Resolution:   "));
   Serial.print(sensor.resolution);
-  Serial.println(F(" xxx"));
-  Serial.println(F("-------- End Orientation Sensor Details --------"));
+  println(F(" xxx"));
+  println(F("-------- End Orientation Sensor Details --------"));
   delay(100);
 }
 
@@ -178,14 +188,14 @@ void orient_displaySensorStatus(void)
   bno.getSystemStatus(&system_status, &self_test_results, &system_error);
 
   /* Display the results in the Serial Monitor */
-  Serial.println(F("------ Orientation Sensor Status: ------------"));
-  Serial.print(F("System Status: 0x"));
+  println(F("------ Orientation Sensor Status: ------------"));
+  print(F("System Status: 0x"));
   Serial.println(system_status, HEX);
-  Serial.print(F("Self Test:     0x"));
+  print(F("Self Test:     0x"));
   Serial.println(self_test_results, HEX);
-  Serial.print(F("System Error:  0x"));
+  print(F("System Error:  0x"));
   Serial.println(system_error, HEX);
-  Serial.println(F("------ End Orientation Sensor Status -----------"));
+  println(F("------ End Orientation Sensor Status -----------"));
   delay(100);
 }
 
@@ -201,36 +211,36 @@ void orient_displayCalibrationStatus(void)
   system = gyro = accel = mag = 0;
   bno.getCalibration(&system, &gyro, &accel, &mag);
 
-  Serial.print(F("Orient Calibration: "));
+  print(F("Orient Calibration: "));
 
   /* The data should be ignored until the system calibration is > 0 */
   if (not system)
   {
-    Serial.print(F("Not Ready! "));
+    print(F("Not Ready! "));
   }
   /* Display the individual values */
-  Serial.print(F("Sys:"));
+  print(F("Sys:"));
   Serial.print(system, DEC);
-  Serial.print(F(" G:"));
+  print(F(" G:"));
   Serial.print(gyro, DEC);
-  Serial.print(F(" A:"));
+  print(F(" A:"));
   Serial.print(accel, DEC);
-  Serial.print(F(" M:"));
+  print(F(" M:"));
   Serial.print(mag, DEC);
 }
 
-void orient_log_all_values()
-{
-  Serial.print(F("cumulative_yaw_angle:"));
-  sd_log_value(datalogFile, sensor_has_locked_on ? orient_get_cumulative_yaw_angle() : NAN);
-  Serial.print(F("NS_pitch:"));
-  sd_log_value(datalogFile, sensor_has_locked_on ? orient_get_NS_pitch() : NAN);
-  Serial.print(F("EW_pitch:"));
-  sd_log_value(datalogFile, sensor_has_locked_on ? orient_get_EW_pitch() : NAN);
-  Serial.print(F("NS_accel:"));
-  sd_log_value(datalogFile, sensor_has_locked_on ? orient_get_NS_accel() : NAN);
-  Serial.print(F("EW_accel:"));
-  sd_log_value(datalogFile, sensor_has_locked_on ? orient_get_EW_accel() : NAN);
-}
+// void orient_log_all_values()
+// {
+//   print(F("cumulative_yaw_angle:"));
+//   sd_log_value(datalogFile, orient_sensor_has_locked_on ? orient_get_cumulative_yaw_angle() : NAN);
+//   print(F("NS_pitch:"));
+//   sd_log_value(datalogFile, orient_sensor_has_locked_on ? orient_get_NS_pitch() : NAN);
+//   print(F("EW_pitch:"));
+//   sd_log_value(datalogFile, orient_sensor_has_locked_on ? orient_get_EW_pitch() : NAN);
+//   print(F("NS_accel:"));
+//   sd_log_value(datalogFile, orient_sensor_has_locked_on ? orient_get_NS_accel() : NAN);
+//   print(F("EW_accel:"));
+//   sd_log_value(datalogFile, orient_sensor_has_locked_on ? orient_get_EW_accel() : NAN);
+// }
 
 #endif

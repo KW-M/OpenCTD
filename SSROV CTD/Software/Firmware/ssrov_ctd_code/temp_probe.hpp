@@ -14,13 +14,9 @@
 #define REQUIRESALARMS false // include the communication protocol libs for temperature sensors (must go here so the DeviceAddress types are defined earlier)
 #include <OneWire.h>
 #include <DallasTemperature.h>
-
-
-#include "utility_functions.hpp"
-#include "power_control.hpp"
-#include "config_storage.hpp"
 #include "command_mode.hpp"
-#include "sdcard.hpp"
+
+
 
 // ----------------------------------------
 // -------- Functions --------
@@ -30,11 +26,15 @@ void temp_setup_sensors();
 void temp_probes_refresh_values();
 float temp_get_latest_raw_value_by_probe_index(int probe_indx);
 float temp_get_latest_calibrated_value_by_probe_index(int probe_indx);
-void temp_log_value(uint8_t probe_indx);
+float temp_get_value(uint8_t probe_indx);
 bool temp_get_probe_address(DeviceAddress *temp_probe_address_destination, uint8_t probe_indx);
 bool temp_get_probe_address_str(char *temp_probe_address_str_destination, uint8_t probe_indx);
 char *temp_get_highest_probe_address();
-void temp_command_mode_loop();
+
+
+void temp_sensor_show_live_data();
+bool temp_sensor_user_command_handler(UserCommand,const __FlashStringHelper *);
+
 
 #endif
 #endif

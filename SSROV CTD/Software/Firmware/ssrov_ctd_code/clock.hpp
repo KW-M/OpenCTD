@@ -3,8 +3,7 @@
 #define CLOCK_FUNCTIONS_H
 
 #include "ssrov_ctd_pinouts_and_constants.hpp"
-#include "power_control.hpp"
-#include "indicator_light.hpp"
+
 // --------------------------------------------
 
 #if !defined(RTC_TYPE)
@@ -22,7 +21,7 @@ extern RTC_PCF8523 rtc; // Make an instance variable of the class to talk to the
 // -----------------------------------------
 
 bool clock_setup_rtc();
-char *clock_get_datetime_string();
+String clock_get_datetime_string();
 void clock_print_time();
 
 #endif

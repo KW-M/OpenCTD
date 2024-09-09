@@ -13,5 +13,28 @@ extern char *__brkval;
 
 int available_memory();
 void utility_nicely_print_bool(bool input);
+void print_plot_value(const char * name, float value);
+
+void print(const __FlashStringHelper *fsh);
+void print(const String str);
+void print(const char *cstr);
+
+void println(const __FlashStringHelper *fsh);
+void println(const String str);
+void println(const char *cstr);
+
+class RollingAverage {
+private:
+  int* values;
+  int index;
+  int count;
+  int size;
+
+public:
+  RollingAverage(int n);
+  ~RollingAverage();
+  void add(int new_value);
+  double getAverage() const;
+};
 
 #endif

@@ -8,9 +8,6 @@
 #include <SdFatConfig.h>
 
 #include "ssrov_ctd_pinouts_and_constants.hpp"
-#include "utility_functions.hpp"
-#include "power_control.hpp"
-#include "indicator_light.hpp"
 #include "clock.hpp"
 
 #if !defined(DATA_STORAGE_FOLDER_PATH) or !defined(MAX_FILE_SIZE) or !defined(MAIN_SDCARD_CHIP_SELECT_PIN)
@@ -52,5 +49,6 @@ void SDCardDateTimeCallback(uint16_t *date, uint16_t *time);
 void sd_enable_file_timestamps();
 void setup_datalog_file(const char *csv_header);
 void print_sd_card_error(const char *filePath);
+void sd_close();
 
 #endif

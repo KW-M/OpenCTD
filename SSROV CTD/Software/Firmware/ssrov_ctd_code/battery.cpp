@@ -1,6 +1,9 @@
 #include "battery.hpp"
 #if ENABLE_BATTERY_MONITOR
 
+#include "utility_functions.hpp"
+#include "sdcard.hpp"
+
 // ----------------------------------------------
 // ------- Battery Montitor Functions -----------
 // ----------------------------------------------
@@ -24,17 +27,16 @@ float battery_get_voltage()
   operatingVoltage = analogRead(REFERENCE_V3_PIN);
 #endif
   float rawVoltage = analogRead(VBATPIN);
-  //  Serial.print(rawVoltage); Serial.print("*"); Serial.print(operatingVoltage);  Serial.print("*"); Serial.print(BATT_VOLTAGE_DIVIDER_MULTIPLIER) Serial.print("=");
-  operatingVoltage = REVERENCE_VOLTAGE_STANDARD / operatingVoltage; // The reference voltage is 3.3V - divide adjusts for lower operating Voltages
+  //  Serial.print(rawVoltage); print("*"); Serial.print(operatingVoltage);  print("*"); Serial.print(BATT_VOLTAGE_DIVIDER_MULTIPLIER) print("=");
+  operatingVoltage = REVERENCE_VOLTAGE_STANDARD / operatingVoltage; // The reference voltage is 3.3V - divide adjusts for lower operating voltages
   rawVoltage = operatingVoltage * rawVoltage;                       // Convert the 0 to 1023 int from the analogRead() to actual voltage on BATT pin (this happens because both operatingVoltage & rawVoltage are on the 0 to 1023 scale, so we're taking the ratio)
   rawVoltage *= BATT_VOLTAGE_DIVIDER_MULTIPLIER;                    // multiply BATT voltage by the voltage divider to get actual system voltage
   return rawVoltage;
 }
 
-void battery_log_value()
+float battery_get_value()
 {
-  Serial.print(F("BattVolts:"));
-  sd_log_value(datalogFile, battery_get_voltage());
+  return battery_get_voltage();
 }
 
 bool battery_voltage_too_low()

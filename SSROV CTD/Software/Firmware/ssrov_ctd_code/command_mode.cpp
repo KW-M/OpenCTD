@@ -1,45 +1,62 @@
+#include "Adafruit_USBD_CDC.h"
+#include <cmath>
 #include "command_mode.hpp"
+#include "indicator_light.hpp"
+#include "power_control.hpp"
+#include "utility_functions.hpp"
+#include "clock.hpp"
+#include "config_storage.hpp"
+#include "time.h"
+#include "sd_usb_passthrough.hpp"
+#include "sd_format_card.hpp"
 
 // -----------------------------------
 // ------- Global Variables ----------
 // -----------------------------------
 
-char latest_full_cmd[FULL_CMD_MAX_LENGTH];  // stores the latest serial input command from the computer after read_serial_input_characters has been called enough.
-uint16_t latest_cmd_cursor_index = 0;       // keeps track of where in the latest_cmd string to insert the next character.
-bool cmd_read_fully = true;                // keeps track of whether we have recieved a full cmd form the user's computer yet (or only a few characters);
+SensorTypes command_mode_active_sensor = SensorTypes::NONE;
+UserCommand latest_user_command = {
+  String(""),  // full_cmd
+  String(""),  // cmd_name
+  String(""),  // value1_string
+  NAN,         // value1_number
+  String(""),  // value2_string
+  NAN,         // value2_number
+};
+uint16_t latest_cmd_cursor_index = 0;  // keeps track of where in the latest_cmd string to insert the next character.
+bool cmd_read_fully = true;            // keeps track of whether we have recieved a full cmd form the user's computer yet (or only a few characters);
 bool cmd_ready = false;
+bool debug_mode = false;
 
-char *latest_cmd_str;          // stores just the parsed input command part (before the first comma)
-char *latest_cmd_str_value_1;  // stores just the parsed input value part 1 (after the first comma)
-float latest_cmd_value_1;      // stores just the parsed input value part 1 as a float (after the first comma)
-char *latest_cmd_str_value_2;  // stores just the parsed input value part 1 (after the first comma)
-float latest_cmd_value_2;      // stores just the parsed input value part 2 (after the first comma)
-
-const __FlashStringHelper *cmd_help_mssg = F("\n\n----- Available Commands ------\n"
-                                             //  "debug - toggle debuging mode off/on: debugging mode prints helpful info to the serial monitor while logging.\n" // note debug mode is now always onn
-                                             "clock     | Sets the current time.\n"
-                                             "          | Command format: clock,Jul 06 2022,19:06:56 \n"
-                                             "----------+----------------------------------------------- \n"
-                                             "raw       | Toggle logging uncalibrated instead of calibrated sensor values\n"
-                                             "          | Make sure this is OFF before deploying!\n"
-                                             "----------+----------------------------------------------- \n"
-                                             "log_delay | Sets the number of seconds between each new row logged in the output file\n"
-                                             "          | NOTE: Sensors will run at their maximum sample rate even if log_delay is faster\n"
-                                             "          | Command format: log_delay,0.2 \n"
-                                             "----------+----------------------------------------------- \n"
-                                             "light     | calibrate the light sensor and view measurments \n"
-                                             "----------+----------------------------------------------- \n"
-                                             "temp      | calibrate the temperature probes and view measurments \n"
-                                             "----------+----------------------------------------------- \n"
-                                             "pressure  | calibrate the pressure sensor and view measurments \n"
-                                             "----------+----------------------------------------------- \n"
-                                             "ec        | electrical conductivity mode: calibrate the sensor and view measurments \n"
-                                             "----------+----------------------------------------------- \n"
-                                             "wipe      | Format / Erase SD card. Will delete ALL saved data & calibrations! \n"
-                                             "          | Backup any data and saved_calibrations folder first!  \n"
-                                             "----------+----------------------------------------------- \n"
-                                             "q         | quit/exit command mode and resume datalogging.\n"
-                                             "----------------------------------------------------------");
+const __FlashStringHelper *cmd_general_help_msg = F(
+  "\n"
+  "\n"
+  "+---------+---------- Available Commands -----------------+ \n"
+  "light     | Calibrate the light sensor and view measurements \n"
+  "----------+------------------------------------------------ \n"
+  "temp      | Calibrate the temperature probes and view measurements \n"
+  "----------+------------------------------------------------ \n"
+  "pressure  | Calibrate the pressure sensor and view measurements \n"
+  "----------+------------------------------------------------ \n"
+  "ec        | Calibrate the conductivity sensor and view measurements \n"
+  "----------+------------------------------------------------ \n"
+  //  "debug - toggle debuging mode off/on: debugging mode prints helpful info to the serial monitor while logging.\n" // note debug mode is now always onn
+  "clock     | Sets the current time.\n"
+  "          | Command format: clock;Jul 06 2022;19: 06: 56 \n"
+  "----------+--+--------------------------------------------- \n"
+  "log_interval | Sets the delay (in seconds) between rows in the csv log \n"
+  "             | NOTE: Each sensors will update up to its maximum \n"
+  "             | sample rate even if log_interval is faster \n"
+  "             | Command format: log_interval;0.5 \n"
+  "----------+--+--------------------------------------------- \n"
+  "raw       | Toggle logging uncalibrated instead of calibrated sensor values\n"
+  "          | Make sure this is OFF before deploying!\n"
+  "----------+------------------------------------------------ \n"
+  "wipe      | Format the SD card. Will DELETE ALL saved data, calibrations, & files! \n"
+  "          | Backup any data and saved_calibrations folder first if you need them!  \n"
+  "----------+------------------------------------------------ \n"
+  "q         | quit/exit command mode and re-enable usb passthrough.\n"
+  "+---------+-----------------------------------------------+");
 
 // -----------------------------------------
 // ------------- Functions -----------------
@@ -54,170 +71,289 @@ void read_serial_input_characters() {
   }
   while (cmd_read_fully == false) {
     char inchar = 0;  // set a char placeholder for the next recived charter as the null character: askii character code = 0
-    if (Serial.available()) inchar = (char)Serial.read();                                                                                                                                  // if a new character is still available, get the new char
+    if (Serial.available())
+      inchar = (char)Serial.read();                                                                                                                                  // if a new character is still available, get the new char
     if (inchar == '\n' or inchar == '\r' or latest_cmd_cursor_index == FULL_CMD_MAX_LENGTH - 1 or serial_input_timeout_counter >= serial_input_timeout_max_count) {  // if the char is a return (\n) or line feed (\r) or the string has filled up all available memory for this string, stop,reset the cursor and return true.
       // if the command is done, finish up the string and mark that the command is complete:
       cmd_read_fully = true;
       cmd_ready = true;
-      latest_full_cmd[latest_cmd_cursor_index] = '\0';  // add the "null terminator" char to mark the string as finished
-      latest_cmd_cursor_index = 0;                      // reset the cursor position back to 0;
+      latest_cmd_cursor_index = 0;  // reset the cursor position back to 0;
     } else if (inchar != 0) {
       // otherwise (if the char isn't the null character, 0) add the new character to the full cmd string:
-      latest_full_cmd[latest_cmd_cursor_index] = inchar;  // add the new char to the string;
-      latest_cmd_cursor_index++;                          // move the cursor forward;
+      if (latest_cmd_cursor_index == 0) latest_user_command.full_cmd = "";
+      latest_user_command.full_cmd += inchar;  // add the new char to the string;
+      latest_cmd_cursor_index++;               // move the cursor forward;
     }
     serial_input_timeout_counter++;
   }
 }
 
-char *parse_command() {
-  size_t full_cmd_len = strlen(latest_full_cmd);
-  for (size_t i = 0; i <= full_cmd_len; i++) {         // set all char to lower case.
-    latest_full_cmd[i] = tolower(latest_full_cmd[i]);  // avoid "Sleep" ≠ "sleep"
-  }
+String parse_command() {
+  size_t full_cmd_len = latest_user_command.full_cmd.length();
+  latest_user_command.full_cmd.toLowerCase();
+  // for (size_t i = 0; i <= full_cmd_len; i++)
+  // {                                     // set all char to lower case.
+  //   temp_cmd[i] = tolower(temp_cmd[i]); // avoid "Sleep" ≠ "sleep"
+  // }
+
+  // latest_user_command.value1_string = ;
+  // latest_user_command.value2_string = emptystring;
+  latest_user_command.value1_number = NAN;
+  latest_user_command.value2_number = NAN;
+
 
   // Extract the first part of the command
-  latest_cmd_str = strtok(latest_full_cmd, ",");
-  latest_cmd_str_value_1 = strtok(NULL, ",");
-  latest_cmd_value_1 = atof(latest_cmd_str_value_1);
-  latest_cmd_str_value_2 = strtok(NULL, ",");
-  latest_cmd_value_2 = atof(latest_cmd_str_value_2);
-  //   Serial.print(latest_full_cmd);
-  //     Serial.print( " : " );
-  //   Serial.print(latest_cmd_str);
-  //   Serial.print( " | " );
-  //   Serial.print(latest_cmd_value_1);
-  //   Serial.print( " | " );
-  //   Serial.print(latest_cmd_value_2);
-  //  Serial.print( " = " );
-  //   Serial.println(temp_value_str);
-  return latest_cmd_str;
+  int delimiter1 = latest_user_command.full_cmd.indexOf(";");
+  int delimiter2 = latest_user_command.full_cmd.indexOf(";", delimiter1 + 1);
+  Serial.print(delimiter1);  Serial.print(",");
+  Serial.println(delimiter2);
+  latest_user_command.cmd_name = latest_user_command.full_cmd.substring(0, delimiter1);
+  if (delimiter1 > 0) {
+    latest_user_command.value1_string = latest_user_command.full_cmd.substring(delimiter1 + 1, delimiter2);
+  } else {
+    latest_user_command.value1_string = "";
+  }
+  if (delimiter2 > 0) {
+    latest_user_command.value2_string = latest_user_command.full_cmd.substring(delimiter2 + 1, full_cmd_len);
+  } else {
+    latest_user_command.value2_string = "";
+  }
+
+
+  // Extract the second number part of the command
+  if (latest_user_command.value1_string.length() != 0) {
+    latest_user_command.value1_number = atof(latest_user_command.value1_string.c_str());
+  }
+
+  // Extract the thrid number part of the command
+  if (latest_user_command.value2_string.length() != 0) {
+    latest_user_command.value1_number = atof(latest_user_command.value2_string.c_str());
+  }
+
+  Serial.println(latest_user_command.full_cmd);
+  Serial.println(latest_user_command.cmd_name);
+  Serial.println(latest_user_command.value1_number * 100);
+  Serial.println(latest_user_command.value1_number * 100);
+
+  return latest_user_command.cmd_name;
 }
 
-// Function to clear the arduino serial plotter window by simply writing alot of zeros to the serial console.
-void clearPlotScreen() {
-  for (uint16_t i = 0; i < 1000; i++) {
-    Serial.println("0,0,0,0,0,0,0,0,0,0,0,0");
-  }
+// Function to clear the arduino serial plotter window by writing a-lot of zeros to the serial console.
+void clear_plot_screen() {
+  for (uint16_t i = 0; i < 200; i++)
+    Serial.println("0");
 }
 
 bool process_command() {
   parse_command();
 
-  if (strcmp("q", latest_cmd_str) == 0) {
+  // q: Quit/Exit
+  if (String("q") == latest_user_command.cmd_name) {
+    command_mode_active_sensor = SensorTypes::NONE;
     return true;
   }
 
-  else if (strcmp_P(latest_cmd_str, "d") == 0) {
+  // d: Disable USB Passthrough (until restart)
+  if (String("d") == latest_user_command.cmd_name) {
     sd_usb_passthrough_clear_read_flag();
     return true;
   }
 
-  else if (strcmp("raw", latest_cmd_str) == 0) {
-
+  // raw: Toggle raw mode - ignores all calibrations & saves raw sensor measurements to SD Card instead.
+  if (String("raw") == latest_user_command.cmd_name) {
     onboard_config.log_raw_values = !onboard_config.log_raw_values;
-    Serial.print(F("Raw (uncalibrated) logging mode is "));
+    print(F("Raw (uncalibrated) logging mode is "));
     if (onboard_config.log_raw_values == true) {
-      Serial.println("on - Make sure this is OFF before deploying!");
+      println("on - Make sure this is OFF before deploying!");
     } else {
-      Serial.println("off");
+      println("off");
     }
-    write_onboard_config();
-    return true;
-
-  } else if (strcmp("clock", latest_cmd_str) == 0) {
-    // clock,Jul 06 2022,09:32:50
-
-    latest_cmd_str_value_1[0] = toupper(latest_cmd_str_value_1[0]);  // capitalize the month
-    Serial.println(strlen(latest_cmd_str_value_1));
-    Serial.println(strlen(latest_cmd_str_value_2));
-    if (strlen(latest_cmd_str_value_1) == 11 and strlen(latest_cmd_str_value_2) == 8) {
-      DateTime realDate = DateTime(latest_cmd_str_value_1, latest_cmd_str_value_2);
-      time_t t = realDate.unixtime();
-      Serial.println(ctime(&t));
-      rtc.adjust(realDate);
-    } else {
-      Serial.println("Date/Time not formatted correctly! Make sure to add leading zero to day, hr, minutes and seconds if only one digit.");
-    }
-  } else if (strcmp("log_delay", latest_cmd_str) == 0) {
-    onboard_config.seconds_between_log_events = latest_cmd_value_1;
     write_onboard_config();
     return true;
   }
 
-  else if (strcmp("wipe", latest_cmd_str) == 0) {
+  // clock: Get or set the current clock date & time
+  // - command format: clock,Jul 06 2022,09:32:50
+  if (String("clock") == latest_user_command.cmd_name) {
+    if (latest_user_command.value1_string.length() == 0) {
+      // Print the current time if no value is provided
+      clock_print_time();
+      println("To set the time, use the command format: clock;Jul 06 2022;09:32:50");
+    } else {
+      // parse the given date & time and apply it to the RTC clock adjustment.
+      latest_user_command.value1_string[0] = toupper(latest_user_command.value1_string[0]);  // capitalize the month
+      Serial.println(latest_user_command.value1_string.length());
+      Serial.println(latest_user_command.value2_string.length());
+      if (latest_user_command.value1_string.length() == 11 and latest_user_command.value2_string.length() == 8) {
+        DateTime realDate = DateTime(latest_user_command.value1_string.c_str(), latest_user_command.value2_string.c_str());
+        time_t t = realDate.unixtime();
+        println(ctime(&t));
+        rtc.adjust(realDate);
+      } else {
+        println("Date/Time not formatted correctly! Make sure to add leading zero to day, hour, minutes and seconds if any are only one digit.");
+      }
+    }
+    return true;
+  }
+
+  // log_interval: set the number of seconds between saved log entries on the SD Card
+  // - command format: log_interval,0.8
+  if (String("log_interval") == latest_user_command.cmd_name) {
+    onboard_config.seconds_between_log_events = latest_user_command.value1_number;
+    write_onboard_config();
+    return true;
+  }
+
+  // wipe: erase and format the SD Card using the SDFat Library tool
+  if (String("wipe") == latest_user_command.cmd_name) {
     format_sd_card();
+    println("Please turn the CTD Off & On");
     return true;
   }
 
-  else if (strcmp_P(latest_cmd_str, "debug") == 0) {
-    //   onboard_config.debugging_mode_on = !onboard_config.debugging_mode_on;
-    //   Serial.print(F("Debuging mode is "));
-    //   utility_nicely_print_bool(onboard_config.debugging_mode_on);
-    //   writeOnboardConfig();
+  // debug: Toggle extra logging and Serial print statements functionality like Battery charge and Avialable Memory
+  else if (String("debug") == latest_user_command.cmd_name) {
+    debug_mode = !debug_mode;
+    // onboard_config.debugging_mode_on = debug_mode;
+    print(F("Debuging mode is "));
+    utility_nicely_print_bool(debug_mode);
+    // write_onboard_config();
+    return true;
   }
 
-#if ENABLE_PHOTORESISTOR
-  else if (strcmp("light", latest_cmd_str) == 0) {
-    photoresistor_command_mode_loop();
+  // light: Switch to light sensor live viewing/calibrating command mode
+#if ENABLE_LIGHT_SENSOR
+  if (String("light") == latest_user_command.cmd_name) {
+    clear_plot_screen();
+    command_mode_active_sensor = SensorTypes::LIGHT;
+  }
+#endif
+
+  // ec: Switch to conductivity sensor live viewing/calibrating command mode
+#if ENABLE_CONDUCTIVITY_SENSOR
+  if (String("ec") == latest_user_command.cmd_name) {
+    clear_plot_screen();
+    command_mode_active_sensor = SensorTypes::CONDUCTIVITY;
+  }
+#endif
+
+  // temp: Switch to temperature sensor live viewing/calibrating command mode
+#if ENABLE_TEMP_PROBE
+  if (String("temp") == latest_user_command.cmd_name) {
+    clear_plot_screen();
+    command_mode_active_sensor = SensorTypes::TEMP;
+  }
+#endif
+
+  // pressure: Switch to pressure sensor live viewing/calibrating command mode
+#if ENABLE_PRESSURE_SENSOR
+  if (String("pressure") == latest_user_command.cmd_name) {
+    clear_plot_screen();
+    command_mode_active_sensor = SensorTypes::PRESS;
+  }
+#endif
+
+  // -------------------------------------------------
+
+#if ENABLE_LIGHT_SENSOR
+  if (command_mode_active_sensor == SensorTypes::LIGHT) {
+    return light_sensor_user_command_handler(latest_user_command, cmd_general_help_msg);
+  }
+#endif
+#if ENABLE_CONDUCTIVITY_SENSOR
+  if (command_mode_active_sensor == SensorTypes::CONDUCTIVITY) {
+    return ec_i2c_user_command_handler(latest_user_command, cmd_general_help_msg);
+  }
+#endif
+#if ENABLE_TEMP_PROBE
+  if (command_mode_active_sensor == SensorTypes::TEMP) {
+    return temp_sensor_user_command_handler(latest_user_command, cmd_general_help_msg);
+  }
+#endif
+#if ENABLE_PRESSURE_SENSOR
+  if (command_mode_active_sensor == SensorTypes::PRESS) {
+    return pressure_sensor_user_command_handler(latest_user_command, cmd_general_help_msg);
+  }
+#endif
+
+  // -------------------------------------------------
+
+  println(cmd_general_help_msg);
+  return true;
+}
+
+// void command_mode_loop() {
+
+//   // bool should_exit =
+//   // if (should_exit)
+//   //   return;
+
+//   // || millis() > command_mode_last_activity_time + COMMAND_MODE_TIMEOUT
+//   // unsigned long int command_mode_last_activity_time = millis();
+//   // while (true) {
+
+//   //   // power_ctrl_check_switch();;
+
+//   //   // if the timeout runs out, exit command mode:
+
+//   //     break;
+//   //   }
+
+//   //   if (!cmd_ready && command_mode_active_sensor == SensorTypes::NONE)
+//   //     continue;
+
+//   //   // handle command:
+//   //   command_mode_last_activity_time = millis();
+//   //   bool should_exit = process_command();
+//   //   if (should_exit)
+//   //     break;
+//   // }
+// }
+
+bool handle_user_commands() {
+
+  // Exit early if no computer is connected by USB cable.
+  if (!usb_is_connected())
+    return false;
+
+  // check for new characters from serial monitor (user's computer):
+  read_serial_input_characters();
+
+  // if a full command is ready to be processed
+  if (cmd_ready) {
+    sd_usb_passthrough_disable();  // disable sd passthrough which might interfere with writing the config / calibration files while in command mode.
+    process_command();             // process command that triggered the command mode loop
+    sd_usb_passthrough_enable();   // Re-Enable SD USB Passthrough
+    return true;
+  }
+
+#if ENABLE_LIGHT_SENSOR
+  if (command_mode_active_sensor == SensorTypes::LIGHT) {
+    light_sensor_show_live_data();
     return true;
   }
 #endif
 
 #if ENABLE_CONDUCTIVITY_SENSOR
-  else if (strcmp("ec", latest_cmd_str) == 0) {
-    ec_i2c_command_mode_loop();
+  if (command_mode_active_sensor == SensorTypes::CONDUCTIVITY) {
+    ec_i2c_show_live_data();
     return true;
   }
 #endif
 
 #if ENABLE_TEMP_PROBE
-  else if (strcmp("temp", latest_cmd_str) == 0) {
-    temp_command_mode_loop();
+  if (command_mode_active_sensor == SensorTypes::TEMP) {
+    temp_sensor_show_live_data();
     return true;
   }
 #endif
 
 #if ENABLE_PRESSURE_SENSOR
-  else if (strcmp("pressure", latest_cmd_str) == 0) {
-    pressure_command_mode_loop();
+  if (command_mode_active_sensor == SensorTypes::PRESS) {
+    pressure_sensor_show_live_data();
     return true;
   }
 #endif
 
-  else {
-    Serial.println(cmd_help_mssg);
-  }
-
   return false;
-}
-
-void command_mode_loop() {
-
-  bool should_exit = process_command();  // process command that triggered the command mode loop
-  if (should_exit) return;
-
-  Serial.println(cmd_help_mssg);
-  sd_usb_passthrough_disable();  // disable sd passthrough which might interfere with writing the config / calibration files while in command mode.
-  unsigned long int command_mode_last_activity_time = millis();
-  while (true) {
-
-
-    power_ctrl_check_mag_switch();
-
-    // if the timeout runs out, exit command mode:
-    if (millis() > command_mode_last_activity_time + COMMAND_MODE_TIMEOUT) {
-      break;
-    }
-
-    // check for new characters from serial monitor (user's computer):
-    read_serial_input_characters();
-    if (!cmd_ready) continue;
-
-    // handle command:
-    command_mode_last_activity_time = millis();
-    bool should_exit = process_command();
-    if (should_exit) break;
-
-  }
 }

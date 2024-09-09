@@ -10,8 +10,6 @@
 #include <StreamUtils.h>
 
 #include "ssrov_ctd_pinouts_and_constants.hpp"
-#include "power_control.hpp"
-#include "sdcard.hpp"
 // #include "command_mode.hpp"
 
 // this file requires these libries from arduino library manager
@@ -35,7 +33,7 @@ extern onboard_config_type onboard_config;
   they are actually filled out in files that are included later
 */
 
-char *temp_get_highest_probe_address();
+char* temp_get_highest_probe_address();
 
 // -----------------------------------
 // ------- Global Variables ----------

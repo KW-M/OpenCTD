@@ -4,7 +4,10 @@
 
 #include "Arduino.h"
 
+extern volatile bool board_will_power_down;
+
 void power_ctrl_setup();
-void power_ctrl_check_mag_switch();
+float power_ctrl_get_switch_voltage();
+void power_ctrl_check_switch();
 
 #endif
