@@ -7,7 +7,7 @@ Everything can be printed WITHOUT SUPPORTS if layed flat and vetical as shown in
 Print all of these files:
 
 - [CTD Chassis Part A.3mf](<CTD Chassis Part A.3mf>)
-- [CTD Chassis Part A.3mf](<CTD Chassis Part B.3mf>)
+- [CTD Chassis Part B.3mf](<CTD Chassis Part B.3mf>)
 - [Mag Switch Tool.3mf](<Mag Switch Tool.3mf>)
 
 Plus print one base plate based on which kind of pressure sensor you have:
