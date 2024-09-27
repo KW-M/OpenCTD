@@ -34,7 +34,7 @@ All things related to the SSROV OpenCTD are found in the [SSROV CTD](./SSROV%20C
 
 - [Source code](./SSROV%20CTD/Software/Firmware/ssrov_ctd_code) in Arduino c++ and [pre-compiled binaries](./SSROV%20CTD/Software/Firmware/ssrov_ctd_code/build) for the Adafruit Feather Adalogger - M0 microcontroller.
 - [PCB designs](./SSROV%20CTD/Hardware/Electronics/PCB/ssrov-kicad-openctd) in KiCad and exported [pcb trace & assembly files](./SSROV%20CTD/Hardware/Electronics/PCB/ssrov-kicad-openctd/production/) for ordering assembled circuit boards from JLCPCB.
-- [3D Printer files](./SSROV%20CTD/Hardware/3DPrints) and [CAD Designs](https://cad.onshape.com/documents/1210ba157fe929ee8ac86200/w/c68b7dc340291ef5042e473d/e/f126e805a19383355f9e1651) for Onshape.
+- [3D Printer files](./SSROV%20CTD/Hardware/3D-Prints) and [CAD Designs](https://cad.onshape.com/documents/1210ba157fe929ee8ac86200/w/c68b7dc340291ef5042e473d/e/f126e805a19383355f9e1651) for Onshape.
 
 Submit a github issue and let us know if you want make one or modify for your usecase! - We are happy to help!
 
