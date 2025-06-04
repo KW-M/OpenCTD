@@ -24,8 +24,9 @@
   Adafruit SD shields and modules: pin 10
 */
 
-// Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur.
-#define SPI_CLOCK SD_SCK_MHZ(12)
+// Try max SPI clock for an SD. Reduce SPI_CLOCK if errors occur. default: SD_SCK_MHZ(12)
+#define SPI_CLOCK F_CPU / 8
+
 
 //==============================================================================
 // Serial output stream
@@ -82,7 +83,7 @@ uint32_t const ERASE_SIZE = 262144L;
 void eraseCard()
 {
     cout << endl
-         << F("Erasing\n");
+         << F("Erasing - may take up to a minute\n");
     uint32_t firstBlock = 0;
     uint32_t lastBlock;
     uint16_t n = 0;

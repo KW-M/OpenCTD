@@ -27,6 +27,7 @@ void ec_switch_from_uart_to_i2c_mode()
 
   // Define the (temporary) SoftwareSerial port for conductivity.
   SoftwareSerial *ecSerial = new SoftwareSerial(EC_RX_PIN_NUM, EC_TX_PIN_NUM);
+  ecSerial->setTimeout(500);
   ecSerial->begin(9600); // Set baud rate for conductivity circuit.
   delay(100);
 
@@ -38,7 +39,6 @@ void ec_switch_from_uart_to_i2c_mode()
 
   // stop & clean up the software Serial port.
   ecSerial->end();
-  // delete ecSerial;
 }
 
 void ec_sensor_pre_setup()
@@ -177,8 +177,6 @@ bool ec_i2c_user_command_handler(UserCommand latest_command, const __FlashString
   String cmd_string = latest_command.full_cmd;
   cmd_string.replace(";", ",");
   const char *cmd = cmd_string.c_str();
-  print("Received: ");
-  println(cmd);
   if (strcmp(cmd, "ec") != 0)
   {
     bool success = ec_i2c_send_command(cmd);

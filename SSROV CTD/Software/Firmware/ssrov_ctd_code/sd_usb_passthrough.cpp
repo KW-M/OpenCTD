@@ -1,3 +1,4 @@
+#include "delay.h"
 #include "sd_usb_passthrough.hpp"
 #include <Adafruit_TinyUSB.h>
 #include "utility_functions.hpp"
@@ -17,6 +18,7 @@
  */
 
 #include "ssrov_ctd_pinouts_and_constants.hpp"
+#include "indicator_light.hpp"
 #include "sdcard.hpp"
 
 // USB Mass Storage object
@@ -33,8 +35,8 @@ int32_t msc_read_cb(uint32_t lba, void *buffer, uint32_t bufsize)
     if (disable_sd_usb_passthrough)
         return -1;
     uint sectorCount = bufsize / 512;
-    uint coppiedBytes = sectorCount * 512;
-    return sd.card()->readSectors(lba, (uint8_t *)buffer, sectorCount) ? coppiedBytes : -1;
+    bool rc = sd.card()->readSectors(lba, (uint8_t *)buffer, sectorCount);
+    return rc ? bufsize : -1;
 }
 
 // Callback invoked when received WRITE10 command.
@@ -48,8 +50,8 @@ int32_t msc_write_cb(uint32_t lba, uint8_t *buffer, uint32_t bufsize)
     if (disable_sd_usb_passthrough)
         return -1;
     uint sectorCount = bufsize / 512;
-    uint coppiedBytes = sectorCount * 512;
-    return sd.card()->writeSectors(lba, buffer, sectorCount) ? coppiedBytes : -1;
+    bool rc = sd.card()->writeSectors(lba, buffer, sectorCount);
+    return rc ? bufsize : -1;
 }
 
 // Callback invoked when WRITE10 command is completed (status received and accepted by host).
@@ -65,16 +67,44 @@ void msc_flush_cb(void)
     // sd.vol()->cacheClear();
 }
 
+
+bool msc_start_stop_callback(uint8_t power_condition, bool start, bool load_eject) {
+  // Serial.printf("Start/Stop callback: power condition %u, start %u, load_eject %u\n", power_condition, start, load_eject);
+  // while (true) {
+  //   //  if(start) indicator_light_pulse(LED_STAT2);
+  //   //  if(load_eject) indicator_light_flash(LED_STAT2);
+  //   //  if(power_condition == 0) indicator_light_flash(LED_STAT3);
+  //   //  if(power_condition == 1) indicator_light_flash(LED_STAT2);
+  //   //  if(power_condition == 3) indicator_light_flash(LED_STAT1);
+  //   //  if(power_condition == 4) indicator_light_pulse(LED_STAT1);
+  //    delay(100);
+  // }
+  return true;
+}
+
+// Callback Invoked when received Test Unit Ready command from host.
+// return true when SD card isn't busy and has no errors allowing host to read/write
+bool msc_ready_callback(void) {
+  if(disable_sd_usb_passthrough or sd.card()->isBusy()) return false;
+  if (sd.card()->sectorCount() == 0 or sd.card()->errorCode()) {
+      print(F("USB Passthrough SD Card error: "));
+      sd_print_error_code(sd.card()->errorCode());
+      indicator_light_pulse(LED_STAT1);
+      return false;
+  }
+  return true;
+}
+
 // Pre setup must be called before Serial.begin() or other usb functions called so the usb controller will know the board will be a storage device.
 void sd_usb_passthrough_pre_setup()
 {
     // Set disk vendor id, product id and revision with string up to 8, 16, 4 characters respectively
     usb_msc.setID("CTD", "SD Card", "1.0");
 
-    
-
     // Set read write callback
     usb_msc.setReadWriteCallback(msc_read_cb, msc_write_cb, msc_flush_cb);
+    // usb_msc.setStartStopCallback(msc_start_stop_callback);
+    // usb_msc.setReadyCallback(msc_ready_callback);
 
     // Still initialize MSC but tell usb stack that MSC is not ready to read/write
     // If we don't initialize, board will be enumerated as CDC only
@@ -101,13 +131,14 @@ void sd_usb_passthrough_post_setup()
 
 void sd_usb_passthrough_enable()
 {
+    msc_flush_cb();
     disable_sd_usb_passthrough = false;
     usb_msc.setUnitReady(true);
 }
 void sd_usb_passthrough_disable()
 {
+    msc_flush_cb();
     disable_sd_usb_passthrough = true;
-
     usb_msc.setUnitReady(false);
 }
 

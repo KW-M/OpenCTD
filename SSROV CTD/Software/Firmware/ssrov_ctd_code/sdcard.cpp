@@ -16,7 +16,7 @@ int current_card_chip_select = MAIN_SDCARD_CHIP_SELECT_PIN;
 
 // Error messages stored in flash.
 #define error(msg) sd.errorHalt(F(msg))
-#define SD_SPI_MHZ SD_SCK_MHZ(12)  // https://github.com/adafruit/ArduinoCore-samd/pull/186
+#define SD_SPI_MHZ F_CPU / 8 // SD_SCK_MHZ(12)  // https://github.com/adafruit/ArduinoCore-samd/pull/186
 
 // -------------------------------------
 // ------- SD Card Functions -----------
@@ -188,8 +188,7 @@ bool sd_log_newline(File32 &filePtr) {  //
     return false;
   Serial.println();
   bp.print('\n');
-  bp.sync();                                            // Actually write the File data up to this point onto the file32 object.
-  if (not filePtr.sync() or filePtr.getWriteError()) {  // Try to write the File data onto the sdcard.
+  if (not bp.sync() or not filePtr.sync() or filePtr.getWriteError()) {  // Try to write the File data onto the sdcard.
     print(F("SD Write Error: "));
     sd_print_error_code(filePtr.getWriteError());
     Serial.println();

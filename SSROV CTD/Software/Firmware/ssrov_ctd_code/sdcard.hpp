@@ -25,7 +25,6 @@ extern onboard_config_type default_onboard_config;
 extern onboard_config_type onboard_config;
 
 #define error(msg) sd.errorHalt(F(msg)) // Store sd error messages in flash.
-#define SD_SPI_MHZ SD_SCK_MHZ(12)       // https://github.com/adafruit/ArduinoCore-samd/pull/186
 
 // -------------------------------------
 // ------- SD Card Functions -----------

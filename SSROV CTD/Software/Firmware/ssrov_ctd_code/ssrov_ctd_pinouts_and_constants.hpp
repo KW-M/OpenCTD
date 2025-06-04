@@ -23,7 +23,7 @@
 /* ---------------------------------*/
 
 #include "RTClib.h"   // does fit in feather m0 memory
-#define RTC_TYPE 'D'  //'P' or 'D'
+#define RTC_TYPE 'D'  //'P' for PCF8523 chip or 'D' for DS3231 chip
 #define RTC_CSV_HEADER "Date_Time,"
 
 /* --------------------------------------*/
@@ -119,7 +119,7 @@
 /* ------ Ambient Light Sensor (BH1750) --------*/
 /* --------------------------------------------------*/
 
-#define ENABLE_LIGHT_SENSOR TRUE
+#define ENABLE_LIGHT_SENSOR FALSE
 #if ENABLE_LIGHT_SENSOR
 #define LIGHT_SENSOR_I2C_ADDR 0x23 // 0x23 = 35  | switch jumper to change address to 0x5C
 #define LIGHT_SENSOR_CSV_HEADER "Light_Level_Lux,"

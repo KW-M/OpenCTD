@@ -1,16 +1,3 @@
-#include "delay.h"
-#include "Arduino.h"
-#include "wiring_digital.h"
-#include <wiring_private.h>
-#include "interupt_timer.hpp"
-#include "SERCOM.h"
-// #include <cmath>
-// #include "Arduino.h"
-// #include "WInterrupts.h"
-// #include "delay.h"
-// #include "wiring_digital.h"
-// #include "Adafruit_USBD_CDC.h"
-
 #include "power_control.hpp"
 #include "indicator_light.hpp"
 
@@ -27,16 +14,14 @@ volatile bool powerup_hold_delay_complete = false;
 volatile bool switch_has_been_released_flag = false;
 volatile bool isTimerLedOn = false;
 volatile bool board_will_power_down = false;
-volatile int i2c_idle_counter = 3;
 
 void power_ctrl_setup() {
   indicator_light_on(LED_STAT3);
   pinMode(POWER_CTRL_OUTPUT_PIN, OUTPUT);
-  pinMode(POWER_CTRL_SENSE_PIN, INPUT); // changed
+  pinMode(POWER_CTRL_SENSE_PIN, INPUT);                     // changed
   digitalWrite(POWER_CTRL_OUTPUT_PIN, POWER_CTRL_HOLD_ON);  // KEEP BOARD ON
   power_ctrl_hold_start_time = millis();
   power_ctrl_start_voltage = power_ctrl_get_switch_voltage();
-  // startTimer(6, power_ctrl_check_switch); //CAUSES RANDOM HANGS!
 }
 
 inline float power_ctrl_get_switch_voltage() {
@@ -46,12 +31,6 @@ inline float power_ctrl_get_switch_voltage() {
 }
 
 void power_ctl_show_mag_state(bool flash) {
-  if(PERIPH_WIRE.isBusIdleWIRE()) {
-    i2c_idle_counter += 1;
-  } else {
-    i2c_idle_counter = 0;
-  }
-
   if (!flash) {
     indicator_light_off(LED_STAT1);
     indicator_light_off(LED_STAT2);
@@ -60,47 +39,6 @@ void power_ctl_show_mag_state(bool flash) {
   } else {
     indicator_light_on(LED_STAT3);
   }
-  // if(PERIPH_WIRE.isBusBusyWIRE()) {
-    // WAS OFF
-  //   indicator_light_on(LED_STAT1);
-  // }
-  // if(!SERCOM3->I2CM.INTFLAG.bit.MB) {
-    // WAS ON
-  //   indicator_light_on(LED_STAT2);
-  // }  
-  // if(!PERIPH_WIRE.availableWIRE()) {
-    // Was ON
-  //   indicator_light_on(LED_STAT3);
-  // }
-
-  // if(PERIPH_WIRE.isStopDetectedWIRE()) {
-    // was OFF
-  //   //indicator_light_on(LED_STAT2);
-  // }  
-  // if(PERIPH_WIRE.isBusUnknownWIRE()) {
-    // Was OFF
-  //   indicator_light_on(LED_STAT3);
-  // }
-
-
-
-  if(PERIPH_WIRE.isArbLostWIRE()) {
-    indicator_light_on(LED_STAT2);
-  }  
-  // if(PERIPH_WIRE.isMasterReadOperationWIRE()) {
-  //   indicator_light_on(LED_STAT3);
-  // }
-
-
-  if (i2c_idle_counter >= 10) {
-    indicator_light_on(LED_STAT1);
-    Wire.end(); 
-    Wire.begin(); // < attempt to restart the I2C system
-    i2c_idle_counter = 0;
-  } else {
-    indicator_light_off(LED_STAT1);
-  }
-
 }
 
 unsigned long lastPowerCheckTime = 0;
@@ -116,7 +54,7 @@ void power_ctrl_check_switch() {
         digitalWrite(POWER_CTRL_OUTPUT_PIN, POWER_CTRL_HOLD_OFF);  // TURN OFF BOARD.
         board_will_power_down = true;
         isTimerLedOn = false;
-      }      
+      }
     } else {
       isTimerLedOn = !isTimerLedOn;
     }
@@ -128,7 +66,8 @@ void power_ctrl_check_switch() {
     isTimerLedOn = false;
   }
   //power_ctl_show_mag_state(isTimerLedOn);
-    if (isTimerLedOn && !board_will_power_down) indicator_light_on(LED_STAT3); else indicator_light_off(LED_STAT3);
+  if (isTimerLedOn && !board_will_power_down) indicator_light_on(LED_STAT3);
+  else indicator_light_off(LED_STAT3);
 }
 
 
@@ -180,7 +119,7 @@ void power_ctrl_check_switch() {
 //       indicator_light_off(3);
 //       switch_has_been_released_flag = true;
 //       attachInterrupt(digitalPinToInterrupt(A5), onPowerSwitchPressed, RISING);
-//       return; 
+//       return;
 //     } else {
 //       indicator_light_on(LED_STAT3);
 //     }
@@ -198,7 +137,7 @@ void power_ctrl_check_switch() {
 //   }
 //   // } else {
 //      attachInterrupt(digitalPinToInterrupt(A5), onPowerSwitchPressed, CHANGE);
-  
+
 //   // print("Power Switch ON=");
 //   // print("MS");
 //   // Serial.println(millis());
@@ -206,7 +145,7 @@ void power_ctrl_check_switch() {
 //   // Serial.println(minvoltage);
 //   // println("maxv");
 //   // Serial.println(maxvoltage);
-//   // 
+//   //
 //   // interrupts();
 // }
 

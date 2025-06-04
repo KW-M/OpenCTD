@@ -32,12 +32,18 @@ const __FlashStringHelper *cmd_general_help_msg = F(
   "\n"
   "\n"
   "+---------+---------- Available Commands -----------------+ \n"
+  #if ENABLE_LIGHT_SENSOR
   "light     | Calibrate the light sensor and view measurements \n"
   "----------+------------------------------------------------ \n"
+  #endif
+  #if ENABLE_TEMP_PROBE
   "temp      | Calibrate the temperature probes and view measurements \n"
   "----------+------------------------------------------------ \n"
+  #endif
+  #if ENABLE_PRESSURE_SENSOR
   "pressure  | Calibrate the pressure sensor and view measurements \n"
   "----------+------------------------------------------------ \n"
+  #endif
   "ec        | Calibrate the conductivity sensor and view measurements \n"
   "----------+------------------------------------------------ \n"
   //  "debug - toggle debuging mode off/on: debugging mode prints helpful info to the serial monitor while logging.\n" // note debug mode is now always onn
@@ -105,8 +111,6 @@ String parse_command() {
   // Extract the first part of the command
   int delimiter1 = latest_user_command.full_cmd.indexOf(";");
   int delimiter2 = latest_user_command.full_cmd.indexOf(";", delimiter1 + 1);
-  Serial.print(delimiter1);  Serial.print(",");
-  Serial.println(delimiter2);
   latest_user_command.cmd_name = latest_user_command.full_cmd.substring(0, delimiter1);
   if (delimiter1 > 0) {
     latest_user_command.value1_string = latest_user_command.full_cmd.substring(delimiter1 + 1, delimiter2);
@@ -129,11 +133,6 @@ String parse_command() {
   if (latest_user_command.value2_string.length() != 0) {
     latest_user_command.value1_number = atof(latest_user_command.value2_string.c_str());
   }
-
-  Serial.println(latest_user_command.full_cmd);
-  Serial.println(latest_user_command.cmd_name);
-  Serial.println(latest_user_command.value1_number * 100);
-  Serial.println(latest_user_command.value1_number * 100);
 
   return latest_user_command.cmd_name;
 }

@@ -21,9 +21,7 @@ bool clock_setup_rtc()
 {
   if (not rtc.begin(&Wire))
   {
-    println(F("Couldn't find Real Time Clock featherwing."));
-    indicator_light_pulse(LED_STAT1);
-    indicator_light_flash(LED_STAT1);
+    println(F("Couldn't find Real Time Clock Chip."));
     return false;
   }
 

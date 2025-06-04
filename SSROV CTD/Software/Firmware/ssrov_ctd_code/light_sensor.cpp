@@ -28,6 +28,7 @@ bool light_sensor_setup_sensor()
   if (!avail)
   {
     println("No BH1750 light sensor found!");
+    indicator_light_flash(LED_STAT1)
     return false;
   }
   else

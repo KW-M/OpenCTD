@@ -17,6 +17,28 @@
 #include "pressure_sensor.hpp"
 #include "orientation_sensor.hpp"
 
+/*HOW TO UPLOAD/FLASH CODE TO A CTD
+*/
+
+/* LED FLASH CODE MEANING 
+ - Yellow LED solid on: CTD battery is charging via USB cable. If no other lights are on, then the CTD is OFF - Use magnets to turn CTD ON.
+ - Bright white LED & blue LED solid on - CTD is attched to a computer by USB cable and is in storage passthrough mode and can accept serial commands from the computer
+ - Bright white LED and blue/green LED Flashing at sample rate (default once a second): Normal logging in progress - CTD is working.
+ - Red LED flashing very quickly: CTD cannot connect to computer or hasn't fully started up - try connecting to the serial monitor in arduino IDE on a computer.
+ - Red LED pulsing very quickly: CTD is in firmware upload mode - try hitting the small feather board reset button or disconnecting & reconnecting battery
+ - Red LED Pulsing at sample rate (default once a second): Error writing to SD Card. Try formatting SD CARD using the inbuilt CTD command "wipe" on the arduino IDE serial monitor or replace faulty SD Card.
+ - Bright White and Red LEDs alternately pulsing or flashing very quickly or slowly: CTD cannot find the real time clock - check battery plug - otherwise CTD main board probably needs replacing.
+ - Red, Yellow, Blue & Bright white LEDs solid on: CTD is conected to the computer as a 'thumbdrive' 
+ - Red, Yellow & Blue LEDs solid on: CTD is in a serial config mode connected to the arduino IDE on a computer.
+ - Red LED and Bright white led flashing very quickly: For CTDs with an IMU or Accelerometer - Accelerometer hasn't settled yet - rotate the CTD around all axies until it settles.
+ - Red LED and Bright white led flashing at sample rate: A configured sensor (light for now) isn't responding or can't be found.
+ - Small Green LED on black feather board flashing - Magnet switch is activated and CTD should turn on/off within a few seconds - IF not, the Magnet switch and/or ctd main board may need replaing
+ - Green/Blue alternating LED on small green board: Conductivity sensor is taking a reading
+ - Solid Blue LED on small green board: Conductivity board is powered on
+ - Solid Green LED on small green board: Conductivity sensor failed to switch from serial to I2C mode - try manually converting it using the "EC-EZO" manual on the atlas scientific website.
+ - Any other color on small green board: consult the manual for the electrical conductivity sensor on the atlas scientific website.
+*/
+
 /*  Each tab at the top, and the include statments abvoe corresponds to a file in this folder and those files help organize the different functions.
     We're using .hpp files instead of .ino (though they both just contain code) beacause we can include them in the order we want and they'll all get compiled
     as if all the code in each .hpp file replaced the corresponding #include line. If we use multiple .INO files, the arduino IDE tries to be helpful and compliles them
@@ -47,13 +69,12 @@
 // Header row for CSV datalog files (this string gets assembled in the setup() function)
 String csv_header = String("");
 
-/* Initital function that runs */
+/* Initital function that runs on boot */
 void setup()
 {
 
-
   // power switch control setup enables the hold to power on/off function.
-  power_ctrl_setup();
+ power_ctrl_setup();
 
   // SD Card usb passthrough "pre" setup MUST go before Serial or SD Card setup/initilization and should happen
   // almost immediately after startup for the computer to correctly recognizes the feather as a "Mass Storage Device"
@@ -61,6 +82,12 @@ void setup()
 
    // Show board has powered on.
   indicator_light_on(LED_STAT2);
+
+  // Enable a timeout of a quarter of a second on I2C comunication in case cosmic rays hit the I2C wires and hang it (Ok probably not that, but...)
+  #define WIRE_TIMEOUT_ENABLED true
+  #if defined(WIRE_TIMEOUT_ENABLED)
+    Wire.setTimeout(250 /* ms */);
+  #endif
 
 // electrical conductivity pre setup MUST GO BEFORE ANY I2C SETUP - Before clock or other sensor setup (because it temporarlly uses the I2C pins as UART pins)
 #if ENABLE_CONDUCTIVITY_SENSOR
@@ -77,17 +104,15 @@ void setup()
     delay(10);
   }
 
-  #if defined(WIRE_HAS_TIMEOUT)
-    Serial.println("Setting i2c timeout");
-    Wire.setWireTimeout(25000 /* us */, true /* reset_on_timeout */);
-  #endif
+
 
   // SETUP CLOCK --------------------------
   print("Initilizing clock - ");
   while (not clock_setup_rtc())
-  { // if clock setup fails, the clock_setup_rtc() function will return false and this loop will run, pulsing the indicator light & trying again.
+  { // if clock setup fails, the clock_setup_rtc() function will return false and this loop will run, pulsing the white and green indicator light & trying again.
     power_ctrl_check_switch();
     indicator_light_pulse(LED_STAT1);
+    indicator_light_pulse(LED_STAT2);
     handle_user_commands();
     delay(10);
   }
@@ -100,8 +125,7 @@ void setup()
   { // NOTE: If the sd card is not inserted or failing this function returns false and so will loop.
 
     power_ctrl_check_switch();
-    indicator_light_flash(LED_STAT1);
-    indicator_light_flash(LED_STAT1);
+    indicator_light_pulse(LED_STAT1);
     handle_user_commands();
     delay(1000);
   }
@@ -129,8 +153,7 @@ void setup()
 #endif
 
 #if ENABLE_LIGHT_SENSOR
-  while (true)
-  {
+  for (uint i = 0; i<10; i++) {
     println(F("Initilizing light sensor..."));
     if (light_sensor_setup_sensor())
       break;
@@ -151,6 +174,10 @@ void setup()
 #if ENABLE_BATTERY_MONITOR
   csv_header += BATTERY_MONITOR_CSV_HEADER;
 #endif
+
+  if (csv_header.endsWith(",")) {
+    csv_header = csv_header.substring(0, csv_header.length() - 1); // remove trailing comma from the csv header
+  }
 
   println(F("==========================================================================="));
   println(F("To see available commands - send any letter from the Arduino Serial Monitor."));
@@ -176,9 +203,11 @@ void loop()
     return;
   }
 
-  handle_user_commands();
+  
   if (usb_is_connected())
   {
+    const bool command_happened = handle_user_commands();
+    if(!command_happened) indicator_light_on(LED_STAT2);
     indicator_light_on(LED_STAT1);
     if (!debug_mode)
       return;
@@ -188,13 +217,6 @@ void loop()
     command_mode_active_sensor = SensorTypes::NONE;
     indicator_light_off(LED_STAT1);
   }
-
-  // if (sd_usb_passthrough_read_flag_is_set()) {2345
-  //   // if (user_command_has_been_processed)
-  //   delay(1000);
-  //   println(F("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nSD Card Passthrough Active - Send the letter d to disable and start logging to the sd card. \nSend any other letter to see available commands"));
-  //   return;  // do not continue logging while passthrough is active
-  // }
 
 #if ENABLE_LIGHT_SENSOR
   light_sensor_refresh_value();
@@ -207,6 +229,7 @@ void loop()
     print(F("\nCompass not locked on. Rotate the board until light stops flashing. "));
     orient_displayCalibrationStatus();
     indicator_light_flash(LED_STAT1);
+    indicator_light_flash(LED_STAT2);
   }
 #endif
 
@@ -216,16 +239,14 @@ void loop()
   lastDatalogTime = millis();
 
   // Check if the data log file is working by trying to write the new line character to the datalog:
-  // This will be true (ie: not working) on the first loop because the datalogFile isn't open yet, so we open & setup the log file inside the if statement below.
-
-  while (!datalogFile or !sd_log_newline(datalogFile))
+  // This if statement will run on the first loop (at least) because the datalogFile isn't open yet, so we open & setup the log file inside the if statement.
+  if (!datalogFile or !sd_log_newline(datalogFile))
   {
     println(F("\nSetting Up Datalog File..."));
-    if (csv_header.endsWith(","))
-      csv_header.substring(0, csv_header.length() - 1); // remove trailing comma from the csv header
     setup_datalog_file(csv_header.c_str());
     write_onboard_config();
     indicator_light_pulse(LED_STAT1);
+    return;
   }
 
   // show a warning if we are set to log RAW / uncalibrated values:
