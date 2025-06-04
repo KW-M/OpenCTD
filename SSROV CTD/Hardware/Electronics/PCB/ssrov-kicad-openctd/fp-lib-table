@@ -9,4 +9,5 @@
   (lib (name "Littelfuse")(type "KiCad")(uri "${KIPRJMOD}/components/Littelfuse.pretty")(options "")(descr ""))
   (lib (name "LIB_BH1750FVI")(type "KiCad")(uri "${KIPRJMOD}/components/LIB_BH1750FVI-TR/BH1750FVI-TR/KiCad")(options "")(descr ""))
   (lib (name "CTD Component Footprints")(type "KiCad")(uri "${KIPRJMOD}/components/")(options "")(descr ""))
+  (lib (name "JLCPCB")(type "KiCad")(uri "${KIPRJMOD}/components/JLCPCB.pretty")(options "")(descr ""))
 )

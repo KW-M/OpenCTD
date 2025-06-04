@@ -1,0 +1,215 @@
+(footprint "Littelfuse Reed Switch 59050-1-S"
+	(version 20240108)
+	(generator "pcbnew")
+	(generator_version "8.0")
+	(layer "F.Cu")
+	(property "Reference" "reed_switchb1"
+		(at 0 -0.5 90)
+		(unlocked yes)
+		(layer "F.SilkS")
+		(uuid "0447eeba-1ca6-4bdb-a373-3bff52fba9db")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.1)
+			)
+		)
+	)
+	(property "Value" "SW_Reed_Opener"
+		(at -3.048 0 90)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "76fcbafa-26bb-4780-87e5-fb91e4ce9fb1")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Footprint" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "f343d8ae-1bd0-48e7-be46-3d50abc5354a")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Datasheet" ""
+		(at 0 0 0)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "452645f9-f7b6-49e1-89fe-6fead5632044")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "Description" "SPST reed switch"
+		(at -5.1 -0.2 90)
+		(unlocked yes)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "5bec7169-67c1-4aa3-b032-d7b00d72f69c")
+		(effects
+			(font
+				(size 1.27 1.27)
+				(thickness 0.15)
+			)
+		)
+	)
+	(property "exclude_from_bom" ""
+		(at 0 0 90)
+		(layer "F.Fab")
+		(hide yes)
+		(uuid "52da72ed-f6c5-4696-90c2-e8f6e5a5fc05")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(attr through_hole board_only exclude_from_pos_files exclude_from_bom)
+	(fp_line
+		(start -2.16 9.27)
+		(end -2.16 -9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "00b7a0c6-2a27-4f26-af22-b2a8903295ec")
+	)
+	(fp_line
+		(start 2.16 9.27)
+		(end 2.16 -9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "6fe81314-18ae-417b-adc2-6901931ecc54")
+	)
+	(fp_arc
+		(start -2.16 -9.27)
+		(mid 0 -11.43)
+		(end 2.16 -9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "867a5a1d-81cb-4c7e-bd3d-1ef02de6debb")
+	)
+	(fp_arc
+		(start 2.16 9.27)
+		(mid 0 11.43)
+		(end -2.16 9.27)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(layer "F.SilkS")
+		(uuid "3e76222d-cbe0-4315-a8c6-dca354d7cada")
+	)
+	(fp_circle
+		(center 0 -10.16)
+		(end 0.254 -10.16)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "c3b656a9-4432-496b-8021-52182fc06cc1")
+	)
+	(fp_circle
+		(center 0 -7.62)
+		(end 0.254 -7.62)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "d9a231db-9072-44db-8b73-fa15340e5a45")
+	)
+	(fp_circle
+		(center 0 10.16)
+		(end 0.254 10.16)
+		(stroke
+			(width 0.2)
+			(type solid)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "318599bf-c9a5-4be2-bad2-747830e0e988")
+	)
+	(fp_text user "${REFERENCE}"
+		(at 3.302 0 90)
+		(unlocked yes)
+		(layer "F.Fab")
+		(uuid "02992055-f89b-4efc-a0be-1a6e3a49e10c")
+		(effects
+			(font
+				(size 1 1)
+				(thickness 0.15)
+			)
+		)
+	)
+	(pad "" thru_hole circle
+		(at 0 -7.62)
+		(size 1.4 1.4)
+		(drill 0.762)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(clearance 0.1)
+		(uuid "35b58083-5288-4a72-a683-f3fe321060ed")
+	)
+	(pad "1" thru_hole circle
+		(at 0 -10.16)
+		(size 1.4 1.4)
+		(drill 0.762)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(clearance 0.1)
+		(uuid "dfc45b77-e762-4766-a9cd-0f0b9075a3cc")
+	)
+	(pad "2" thru_hole circle
+		(at 0 10.16)
+		(size 1.4 1.4)
+		(drill 0.762)
+		(layers "*.Cu" "*.Mask")
+		(remove_unused_layers no)
+		(clearance 0.1)
+		(uuid "2cee5232-561c-40c9-b0fc-1a48e22120de")
+	)
+	(group ""
+		(uuid "e71e6135-8c92-4eb3-9488-56560a6ce00f")
+		(members "00b7a0c6-2a27-4f26-af22-b2a8903295ec" "318599bf-c9a5-4be2-bad2-747830e0e988"
+			"3e76222d-cbe0-4315-a8c6-dca354d7cada" "6fe81314-18ae-417b-adc2-6901931ecc54"
+			"867a5a1d-81cb-4c7e-bd3d-1ef02de6debb" "c3b656a9-4432-496b-8021-52182fc06cc1"
+			"d9a231db-9072-44db-8b73-fa15340e5a45"
+		)
+	)
+	(model "${KIPRJMOD}/components/Littelfuse.pretty/Littelfuse Reed Switch 59050-3-S.step"
+		(offset
+			(xyz 0 0 0)
+		)
+		(scale
+			(xyz 1 1 1)
+		)
+		(rotate
+			(xyz 0 0 -90)
+		)
+	)
+)
