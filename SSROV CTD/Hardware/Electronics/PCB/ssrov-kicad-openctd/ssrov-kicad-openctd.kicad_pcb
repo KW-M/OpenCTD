@@ -2906,7 +2906,7 @@
 		(uuid "1d79decb-e3cd-44c9-a07d-82076d4073dc")
 		(at 133.325 81.255)
 		(property "Reference" "Reed_Switch_Conn2"
-			(at 0 -5.8 0)
+			(at -0.015 -6.565 0)
 			(layer "F.SilkS")
 			(uuid "6055c50e-97ef-4380-961f-72a8fd611155")
 			(effects
@@ -5540,7 +5540,7 @@
 		)
 		(fp_arc
 			(start 25.301215 17.766068)
-			(mid 24.584913 19.495973)
+			(mid 24.584913 19.495977)
 			(end 22.856072 20.214845)
 			(stroke
 				(width 0.203199)
@@ -5971,7 +5971,7 @@
 		(uuid "2cddf56a-e396-4a69-914f-4cf9758ddf87")
 		(at 113.05 81.31)
 		(property "Reference" "Reed_Switch_Conn1"
-			(at 0 -5.8 0)
+			(at 0 -6.87 0)
 			(layer "F.SilkS")
 			(uuid "ba1fccc3-a796-4d2f-ada5-c08e32440ba9")
 			(effects
@@ -17780,26 +17780,6 @@
 		)
 	)
 	(gr_line
-		(start 171.72112 125.372653)
-		(end 172.08 125.54)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "0286eb24-916b-4c4d-8527-74326246eae5")
-	)
-	(gr_line
-		(start 148.68 122.97)
-		(end 148.94 123.23)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "09a7db21-b30f-4b08-8fe2-3ee21a706243")
-	)
-	(gr_line
 		(start 200.87 95.69)
 		(end 201.43 95.69)
 		(stroke
@@ -17808,16 +17788,6 @@
 		)
 		(layer "B.SilkS")
 		(uuid "0c181b87-75a9-465d-bd1d-827bedef39c9")
-	)
-	(gr_line
-		(start 167.955 124.38)
-		(end 167.685 124.62)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "0d286ffe-c11f-4d68-b672-2fad404e9564")
 	)
 	(gr_line
 		(start 195.79 85.53)
@@ -17838,16 +17808,6 @@
 		)
 		(layer "B.SilkS")
 		(uuid "160ce6b1-8548-4e80-ba92-4713a4c4ff18")
-	)
-	(gr_line
-		(start 172.510462 125.085356)
-		(end 171.72112 125.372653)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "1ec7ac00-44c3-4972-bc51-7f86fcf4767f")
 	)
 	(gr_line
 		(start 190.96 90.73)
@@ -17898,16 +17858,6 @@
 		)
 		(layer "B.SilkS")
 		(uuid "35cc6e60-329e-4dc5-ac25-516e34919cca")
-	)
-	(gr_line
-		(start 148.68 122.97)
-		(end 148.4 123.25)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "36e2ac8e-67b4-4033-8b56-7613ee56417c")
 	)
 	(gr_line
 		(start 190.96 93.27)
@@ -17989,16 +17939,6 @@
 		(layer "B.SilkS")
 		(uuid "4262dc12-f0fe-471f-a599-9f8055478f0d")
 	)
-	(gr_line
-		(start 163.887347 124.42112)
-		(end 163.72 124.78)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "48d0afaa-e9ab-4859-9e5d-d08934e97ff7")
-	)
 	(gr_circle
 		(center 123.9 79.35)
 		(end 123.9 79.22)
@@ -18071,26 +18011,6 @@
 		(uuid "63349016-35b0-4980-9a0e-d2672c684c83")
 	)
 	(gr_line
-		(start 168.215 124.63)
-		(end 167.955 124.38)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "70d487de-1b13-4068-a31c-32cf05df736d")
-	)
-	(gr_line
-		(start 153.446985 125.373015)
-		(end 153.051005 125.373015)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "766bcb89-d37b-4969-a47a-ed6d39f3b79a")
-	)
-	(gr_line
 		(start 199.898094 107.35)
 		(end 199.898094 107.99)
 		(stroke
@@ -18109,36 +18029,6 @@
 		)
 		(layer "B.SilkS")
 		(uuid "7c594f6d-0415-453e-b1a5-38e1324bcb18")
-	)
-	(gr_line
-		(start 153.446985 125.373015)
-		(end 153.446985 125.740711)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "7c620abe-9ba6-4f71-9015-64b0a0c19196")
-	)
-	(gr_line
-		(start 148.68 123.81)
-		(end 148.68 122.97)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "7c79b04c-25be-41b8-ac09-5890729658a2")
-	)
-	(gr_line
-		(start 163.887347 124.42112)
-		(end 164.220593 124.576515)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "7cad25ca-8bdd-4148-a5fd-6132b58c3f9f")
 	)
 	(gr_line
 		(start 190.96 88.19)
@@ -18191,16 +18081,6 @@
 		(uuid "80885ab4-6c49-4708-a922-1ca440d16ad5")
 	)
 	(gr_line
-		(start 164.174644 125.210462)
-		(end 163.72 125.54)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "8bbf711d-d036-4715-a248-d5e99a6a24a0")
-	)
-	(gr_line
 		(start 200.87 93.15)
 		(end 201.43 93.15)
 		(stroke
@@ -18209,16 +18089,6 @@
 		)
 		(layer "B.SilkS")
 		(uuid "8e5f3343-bf6e-4101-a999-4a59edd4995f")
-	)
-	(gr_line
-		(start 164.174644 125.210462)
-		(end 163.887347 124.42112)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "95861bdc-73e6-4d9e-b82b-62161d7ea3e6")
 	)
 	(gr_line
 		(start 200.87 85.53)
@@ -18249,16 +18119,6 @@
 		)
 		(layer "B.SilkS")
 		(uuid "a8de6ff1-78a5-4344-9e53-68ef8cd13286")
-	)
-	(gr_line
-		(start 171.72112 125.372653)
-		(end 171.876515 125.039407)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "ab2ea418-1e78-4b10-bd66-225af5470c94")
 	)
 	(gr_line
 		(start 103.935 98.32)
@@ -18300,16 +18160,6 @@
 		(layer "B.SilkS")
 		(uuid "b13057d4-ca6f-4605-81a0-c1c657350b4f")
 	)
-	(gr_line
-		(start 152.853015 125.966985)
-		(end 153.446985 125.373015)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "B.SilkS")
-		(uuid "b2bc2169-956a-4563-a02e-39de3e226375")
-	)
 	(gr_circle
 		(center 122.05 79.35)
 		(end 122.05 79.22)
@@ -18320,17 +18170,6 @@
 		(fill none)
 		(layer "B.SilkS")
 		(uuid "b3f7ec67-350b-4877-a114-5471de9db7fd")
-	)
-	(gr_rect
-		(start 144.51 122.12)
-		(end 174.43 126.78)
-		(stroke
-			(width 0.15)
-			(type dot)
-		)
-		(fill none)
-		(layer "B.SilkS")
-		(uuid "b67eb7aa-d0f8-4b1e-b39e-71a1c6e55f50")
 	)
 	(gr_line
 		(start 123.9 79.35)
@@ -19367,28 +19206,6 @@
 		(layer "Dwgs.User")
 		(uuid "22c59815-9d35-4ac7-962e-eeb16c0fa3b3")
 	)
-	(gr_line
-		(start 100.266001 98.309999)
-		(end 100.266001 90.689999)
-		(locked yes)
-		(stroke
-			(width 0.15)
-			(type default)
-		)
-		(layer "Dwgs.User")
-		(uuid "3af3d320-8003-4489-b22e-325b925a1bbb")
-	)
-	(gr_line
-		(start 138.44 84.619)
-		(end 110.5 84.619)
-		(locked yes)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "Dwgs.User")
-		(uuid "4b5b7bf5-b875-4bfd-9456-7a8009b54e21")
-	)
 	(gr_rect
 		(start 93.98 77.978)
 		(end 208.73 110.978)
@@ -19412,50 +19229,6 @@
 		(fill none)
 		(layer "Dwgs.User")
 		(uuid "72fdd26d-13fa-4cbc-be1f-c41601044a3d")
-	)
-	(gr_arc
-		(start 257.086657 74.555349)
-		(mid 255.04 79.51)
-		(end 250.088322 81.563839)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(layer "Dwgs.User")
-		(uuid "754304af-633c-49c1-81f9-2b16724e6623")
-	)
-	(gr_line
-		(start 116.53 94.84)
-		(end 134.31 94.84)
-		(locked yes)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "Dwgs.User")
-		(uuid "b4aa0d4a-31a9-4c48-8870-12f8e0bbcd0d")
-	)
-	(gr_line
-		(start 100.34 104.939)
-		(end 138.44 104.939)
-		(locked yes)
-		(stroke
-			(width 0.15)
-			(type solid)
-		)
-		(layer "Dwgs.User")
-		(uuid "db828b95-240a-4cc9-91d5-df67b771f142")
-	)
-	(gr_arc
-		(start 241.501102 66.42849)
-		(mid 246.447148 68.476119)
-		(end 248.5 73.42)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(layer "Dwgs.User")
-		(uuid "ee27d0af-9df1-45c6-bbb0-9de606e488e6")
 	)
 	(gr_line
 		(start 208.73 106.478)
@@ -20098,30 +19871,6 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "I2C\nADDR\n"
-		(at 173.97 122.46 90)
-		(layer "B.SilkS")
-		(uuid "09e2b8b1-45ab-4b89-adcc-13e6cfbb05c6")
-		(effects
-			(font
-				(size 0.8 0.8)
-				(thickness 0.1)
-			)
-			(justify left bottom mirror)
-		)
-	)
-	(gr_text "35"
-		(at 169.69 125.98 0)
-		(layer "B.SilkS")
-		(uuid "0cb82810-d0fb-4fa9-b5a8-c7389ffd93b7")
-		(effects
-			(font
-				(size 0.8 0.8)
-				(thickness 0.1)
-			)
-			(justify right bottom mirror)
-		)
-	)
 	(gr_text "A5"
 		(locked yes)
 		(at 123.072904 108.474 0)
@@ -20197,18 +19946,6 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "(BH1750FVI)\n"
-		(at 156.03 126 0)
-		(layer "B.SilkS")
-		(uuid "3a1b3c0f-8e8f-47c7-8bb5-55a1bc2b6b11")
-		(effects
-			(font
-				(size 0.8 0.8)
-				(thickness 0.1)
-			)
-			(justify right bottom mirror)
-		)
-	)
 	(gr_text "RST"
 		(at 107.45 93.84 -90)
 		(layer "B.SilkS")
@@ -20243,18 +19980,6 @@
 				(thickness 0.15)
 			)
 			(justify left bottom mirror)
-		)
-	)
-	(gr_text "92"
-		(at 167.17 125.96 0)
-		(layer "B.SilkS")
-		(uuid "6529c68c-2bb6-4f71-a6df-e946e2541841")
-		(effects
-			(font
-				(size 0.8 0.8)
-				(thickness 0.1)
-			)
-			(justify right bottom mirror)
 		)
 	)
 	(gr_text "RT_CLOCK"
@@ -20448,18 +20173,6 @@
 			(justify mirror)
 		)
 	)
-	(gr_text "DSI Pin\n(Cut Jumper)"
-		(at 148.73 126.45 0)
-		(layer "B.SilkS")
-		(uuid "c88ae744-6842-4973-a205-cb36b64b30b5")
-		(effects
-			(font
-				(size 0.8 0.8)
-				(thickness 0.1)
-			)
-			(justify bottom mirror)
-		)
-	)
 	(gr_text "SDA"
 		(at 200.16111 79.91 0)
 		(layer "B.SilkS")
@@ -20507,18 +20220,6 @@
 				(thickness 0.15)
 			)
 			(justify mirror)
-		)
-	)
-	(gr_text "Light Sensor"
-		(at 174.8 123.73 0)
-		(layer "B.SilkS")
-		(uuid "dc6ee5db-870d-48be-8717-24cc237f36f1")
-		(effects
-			(font
-				(size 1.2 1.2)
-				(thickness 0.15)
-			)
-			(justify right bottom mirror)
 		)
 	)
 	(gr_text "SCL"
@@ -20750,31 +20451,6 @@
 			)
 		)
 	)
-	(gr_text "https://jlcpcb.com/blog/312-technical-guidance-mouse-bite-panelization-guide"
-		(at 141.46 30.03 0)
-		(layer "F.SilkS")
-		(uuid "377aaacb-6592-4ecb-8e5d-b86ba3178e73")
-		(effects
-			(font
-				(size 1.5 1.5)
-				(thickness 0.3)
-				(bold yes)
-			)
-			(justify left bottom)
-		)
-	)
-	(gr_text "MAG SWITCH"
-		(at 133.19 72.94 0)
-		(layer "F.SilkS")
-		(uuid "39f2c080-8677-40c6-ba18-c3b809295fc1")
-		(effects
-			(font
-				(size 0.8 0.8)
-				(thickness 0.1)
-			)
-			(justify bottom)
-		)
-	)
 	(gr_text "A2"
 		(at 115.491 108.974 0)
 		(layer "F.SilkS")
@@ -20826,17 +20502,6 @@
 		(effects
 			(font
 				(size 0.8 0.8)
-				(thickness 0.15)
-			)
-		)
-	)
-	(gr_text "GND"
-		(at 87.15 97.19 0)
-		(layer "F.SilkS")
-		(uuid "4c0cc5e8-d628-4029-b3fb-64566a1eda32")
-		(effects
-			(font
-				(size 1 1)
 				(thickness 0.15)
 			)
 		)
@@ -20908,17 +20573,6 @@
 			)
 		)
 	)
-	(gr_text "EC\nRX"
-		(at 87.55 104.04 90)
-		(layer "F.SilkS")
-		(uuid "5667232a-055e-4148-8b89-377b6e4e293b")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
-		)
-	)
 	(gr_text "EN"
 		(at 112.77 89.968 0)
 		(layer "F.SilkS")
@@ -20962,17 +20616,6 @@
 				(thickness 0.15)
 			)
 			(justify left bottom)
-		)
-	)
-	(gr_text "EC\nTX"
-		(at 86.87 100.65 90)
-		(layer "F.SilkS")
-		(uuid "753f7557-ff83-4c28-bcd7-2a8f36afd5d3")
-		(effects
-			(font
-				(size 1 1)
-				(thickness 0.15)
-			)
 		)
 	)
 	(gr_text "A3"
@@ -21275,18 +20918,6 @@
 			)
 		)
 	)
-	(gr_text "MAG SWITCH\n"
-		(at 112.98 72.57 0)
-		(layer "F.SilkS")
-		(uuid "f053bf02-594a-4ce3-823b-5691fb6bf960")
-		(effects
-			(font
-				(size 0.8 0.8)
-				(thickness 0.1)
-			)
-			(justify bottom)
-		)
-	)
 	(gr_text "DS3231"
 		(at 110.04 95.53 -0)
 		(layer "F.SilkS")
@@ -21319,6 +20950,43 @@
 				(size 0.8 0.8)
 				(thickness 0.15)
 			)
+		)
+	)
+	(gr_text "https://jlcpcb.com/blog/312-technical-guidance-mouse-bite-panelization-guide"
+		(at 99.99 114.44 0)
+		(layer "Cmts.User")
+		(uuid "377aaacb-6592-4ecb-8e5d-b86ba3178e73")
+		(effects
+			(font
+				(size 1.5 1.5)
+				(thickness 0.3)
+				(bold yes)
+			)
+			(justify left bottom)
+		)
+	)
+	(gr_text "MAG SWITCH"
+		(at 133.31 77.36 0)
+		(layer "Cmts.User")
+		(uuid "39f2c080-8677-40c6-ba18-c3b809295fc1")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.1)
+			)
+			(justify bottom)
+		)
+	)
+	(gr_text "MAG SWITCH\n"
+		(at 112.97 77.36 0)
+		(layer "Cmts.User")
+		(uuid "f053bf02-594a-4ce3-823b-5691fb6bf960")
+		(effects
+			(font
+				(size 0.8 0.8)
+				(thickness 0.1)
+			)
+			(justify bottom)
 		)
 	)
 	(segment
